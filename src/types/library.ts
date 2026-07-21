@@ -24,6 +24,7 @@ export interface ProjectSummary {
   };
   status?: "in-progress" | "completed" | "bookmarked";
   completedOn?: string;
+  yourRating?: number;
 }
 
 export interface LibraryCategory {

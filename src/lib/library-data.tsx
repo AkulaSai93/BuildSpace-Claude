@@ -134,6 +134,7 @@ export const projects: ProjectSummary[] = [
     instructor: { name: "Sai Krishnan", title: "Frontend Lead, ex-Netflix" },
     status: "completed",
     completedOn: "Dec 12, 2024",
+    yourRating: 5,
   },
   {
     slug: "microservices-architecture",
@@ -171,6 +172,7 @@ export const projects: ProjectSummary[] = [
     instructor: { name: "David Kim", title: "Full-Stack Architect" },
     status: "completed",
     completedOn: "Nov 2, 2024",
+    yourRating: 5,
   },
   {
     slug: "task-management-api",

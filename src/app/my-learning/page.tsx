@@ -37,9 +37,7 @@ export default function MyLearningPage() {
       <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-7 px-20 pb-16 pt-10">
         <div className="flex w-[470px] flex-col items-start gap-[5px]">
           <h1 className="text-2xl font-semibold text-ink">My Learning</h1>
-          <p className="text-sm text-ink-muted">
-            You&apos;re 34% through the e-commerce build. Keep the momentum going.
-          </p>
+          <p className="text-sm text-ink-muted">Track your progress, projects, and growth in one place.</p>
         </div>
 
         <div className="flex items-center gap-6">
@@ -49,7 +47,7 @@ export default function MyLearningPage() {
         </div>
 
         <div className="flex w-full gap-6">
-          <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-black/[0.08] bg-white">
+          <div className="flex min-w-0 flex-1 flex-col gap-4">
             <div className="flex border-b border-black/[0.08]">
               {tabConfig.map(({ id, label }) => (
                 <button
@@ -70,9 +68,11 @@ export default function MyLearningPage() {
               ))}
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-4">
               {filtered.length === 0 ? (
-                <p className="p-8 text-center text-sm text-ink-muted">No projects here yet.</p>
+                <p className="rounded-xl border border-black/[0.08] bg-white p-8 text-center text-sm text-ink-muted">
+                  No projects here yet.
+                </p>
               ) : (
                 filtered.map((project) => <MyLearningRow key={project.slug} project={project} />)
               )}

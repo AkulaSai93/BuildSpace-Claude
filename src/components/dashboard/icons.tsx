@@ -506,3 +506,11 @@ export function SendIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function ZapIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M8.5 1L3 9h4l-0.5 6L13 7H9l-0.5-6z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}

@@ -64,7 +64,7 @@ export function LearningSidebar() {
           <span className="text-3xl font-semibold text-ink">6</span>
           <span className="text-sm text-ink-muted">days</span>
         </div>
-        <div className="mt-3 grid grid-cols-11 gap-1.5">
+        <div className="mt-3 grid grid-cols-7 gap-1.5">
           {Array.from({ length: 14 }).map((_, i) => (
             <span
               key={i}

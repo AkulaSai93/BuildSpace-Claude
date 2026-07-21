@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ProjectSummary } from "@/types/library";
-import { CheckCircleIcon, ClockIcon, PlayIcon, StarIcon, VideoIcon } from "@/components/dashboard/icons";
+import { AwardIcon, CheckCircleIcon, ClockIcon, PlayIcon, StarIcon, UsersIcon, VideoIcon } from "@/components/dashboard/icons";
 
 const levelStyles: Record<ProjectSummary["level"], string> = {
   Beginner: "bg-emerald-50 text-emerald-600",
@@ -10,7 +10,7 @@ const levelStyles: Record<ProjectSummary["level"], string> = {
 
 export function MyLearningRow({ project }: { project: ProjectSummary }) {
   return (
-    <div className="flex w-full flex-col gap-4 border-b border-black/[0.06] p-5 last:border-b-0">
+    <div className="flex w-full flex-col gap-4 rounded-xl border border-black/[0.08] bg-white p-5">
       <div className="flex w-full items-start gap-4">
         <div className="relative h-[134px] w-[176px] shrink-0 overflow-hidden rounded bg-stone-200">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -35,6 +35,18 @@ export function MyLearningRow({ project }: { project: ProjectSummary }) {
             )}
           </div>
 
+          {project.status === "completed" && project.yourRating && (
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <StarIcon
+                  key={i}
+                  className={`size-3.5 ${i < project.yourRating! ? "text-amber-500" : "text-black/15"}`}
+                />
+              ))}
+              <span className="text-xs text-ink-muted">Your rating</span>
+            </div>
+          )}
+
           {project.status === "in-progress" && project.progress && (
             <>
               <div className="flex items-center justify-between text-sm">
@@ -51,36 +63,60 @@ export function MyLearningRow({ project }: { project: ProjectSummary }) {
             <div className="h-2 w-full rounded-full bg-brand" />
           )}
 
-          <div className="flex items-center justify-between">
+          {project.status === "bookmarked" && (
             <div className="flex items-center gap-4 text-xs text-ink-muted">
-              {project.status === "completed" ? (
-                <span>{project.completedOn}</span>
-              ) : (
-                <span className="flex items-center gap-1">
-                  <VideoIcon className="size-3" />
-                  {project.videoCount} videos
-                </span>
-              )}
+              <span className="flex items-center gap-1">
+                <StarIcon className="size-3 text-amber-500" />
+                {project.rating} ({project.reviewCount.toLocaleString()})
+              </span>
+              <span className="flex items-center gap-1">
+                <UsersIcon className="size-3" />
+                {project.learners}
+              </span>
               <span className="flex items-center gap-1">
                 <ClockIcon className="size-3" />
                 {project.duration}
               </span>
-              {project.status === "bookmarked" && (
+              <span className="flex items-center gap-1">
+                <VideoIcon className="size-3" />
+                {project.videoCount}
+              </span>
+            </div>
+          )}
+
+          {project.status !== "bookmarked" && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4 text-xs text-ink-muted">
+                {project.status === "completed" ? (
+                  <span>{project.completedOn}</span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <VideoIcon className="size-3" />
+                    {project.videoCount} videos
+                  </span>
+                )}
                 <span className="flex items-center gap-1">
-                  <StarIcon className="size-3 text-amber-500" />
-                  {project.rating} ({project.reviewCount.toLocaleString()})
+                  <ClockIcon className="size-3" />
+                  {project.duration}
                 </span>
+              </div>
+
+              {project.status === "completed" ? (
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-brand">
+                  <AwardIcon className="size-3.5" />
+                  Certificate
+                </span>
+              ) : (
+                <Link
+                  href={`/library/${project.slug}`}
+                  className="flex items-center gap-1.5 rounded-2xl bg-brand px-3 py-2 text-xs font-semibold text-white hover:bg-brand/90"
+                >
+                  <PlayIcon className="size-3" />
+                  Start
+                </Link>
               )}
             </div>
-
-            <Link
-              href={`/library/${project.slug}`}
-              className="flex items-center gap-1.5 rounded-2xl bg-brand px-3 py-2 text-xs font-semibold text-white hover:bg-brand/90"
-            >
-              <PlayIcon className="size-3" />
-              {project.status === "completed" ? "Review" : "Start"}
-            </Link>
-          </div>
+          )}
         </div>
       </div>
 

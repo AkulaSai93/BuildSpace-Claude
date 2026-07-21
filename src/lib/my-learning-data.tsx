@@ -1,10 +1,10 @@
-import { PlayIcon, CheckCircleIcon, ClockIcon, FlagIcon } from "@/components/dashboard/icons";
+import { LibraryIcon, TrophyIcon, ClockIcon, ZapIcon } from "@/components/dashboard/icons";
 
 export const myLearningStats = [
-  { id: "enrolled", label: "Enrolled", value: "4", iconBg: "bg-[#ecfdf5] text-brand", icon: <PlayIcon className="size-4" /> },
-  { id: "completed", label: "Completed", value: "2", iconBg: "bg-[#eff6ff] text-blue-600", icon: <CheckCircleIcon className="size-4" /> },
-  { id: "hours-built", label: "Hours Built", value: "48h", iconBg: "bg-[#f5f3ff] text-violet-600", icon: <ClockIcon className="size-4" /> },
-  { id: "day-streak", label: "Day Streak", value: "6", iconBg: "bg-[#fffbeb] text-amber-600", icon: <FlagIcon className="size-4" /> },
+  { id: "enrolled", label: "Enrolled", value: "4", iconBg: "bg-[#ecfdf5] text-emerald-600", icon: <LibraryIcon className="size-4" /> },
+  { id: "completed", label: "Completed", value: "2", iconBg: "bg-[#fffbeb] text-amber-600", icon: <TrophyIcon className="size-4" /> },
+  { id: "hours-built", label: "Hours Built", value: "48h", iconBg: "bg-[#eff6ff] text-blue-600", icon: <ClockIcon className="size-4" /> },
+  { id: "day-streak", label: "Day Streak", value: "6", iconBg: "bg-red-50 text-orange-600", icon: <ZapIcon className="size-4" /> },
 ];
 
 export const skillsCovered = [
