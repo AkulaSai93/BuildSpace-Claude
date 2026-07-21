@@ -1,0 +1,292 @@
+import { SVGProps } from "react";
+
+type IconProps = SVGProps<SVGSVGElement>;
+
+export function LogoIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M3 8l4-6 4 6-4 6-4-6z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function GridIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+export function LibraryIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M3 2h7l3 3v9H3V2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path d="M6 7h4M6 10h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function GraduationIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M1 6l7-3 7 3-7 3-7-3z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path d="M4 7.5v3.5c0 1 1.8 2 4 2s4-1 4-2V7.5" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+export function SearchIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M13.5 13.5L11 11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function BellIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M4 6a4 4 0 118 0c0 3 1 4 1 4H3s1-1 1-4z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path d="M6.5 12.5a1.5 1.5 0 003 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function CompassIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M10.2 5.8L9 9l-3.2 1.2L7 7l3.2-1.2z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function PlayIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M6.5 5.5l4 2.5-4 2.5v-5z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function ClockIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function DownloadIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M8 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2.5 12v1.5A1.5 1.5 0 004 15h8a1.5 1.5 0 001.5-1.5V12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ChatIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M2 3.5h12v7H6l-3 3v-3H2v-7z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function VideoIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <rect x="1.5" y="3.5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M10.5 6.5l4-2v7l-4-2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function UsersIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="6" cy="5.5" r="2" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M2 13c0-2.2 1.8-3.5 4-3.5s4 1.3 4 3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M10.5 4a2 2 0 010 3.9M12 13c0-1.7-1-3-2.5-3.4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function StarIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <path d="M8 1.5l2 4.2 4.5.4-3.4 3 1 4.4L8 11.3l-4.1 2.2 1-4.4-3.4-3 4.5-.4L8 1.5z" />
+    </svg>
+  );
+}
+
+export function FlameIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path
+        d="M8 1.5s3 2.5 3 5.5a3 3 0 01-6 0c0-.6.15-1.1.4-1.6C5 6.5 4 8 4 9.7A4 4 0 008 13.7a4 4 0 004-4c0-3.2-2.3-5.2-4-8.2z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function ArrowRightIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function FilterIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M2 4h12M4.5 8h7M7 12h2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function ListIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M4 4h9M4 8h9M4 12h9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <circle cx="1.5" cy="4" r="0.75" fill="currentColor" />
+      <circle cx="1.5" cy="8" r="0.75" fill="currentColor" />
+      <circle cx="1.5" cy="12" r="0.75" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function BookmarkIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M4 2h8v12l-4-3-4 3V2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function ShareIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="12" cy="3.5" r="1.8" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="4" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="12" cy="12.5" r="1.8" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M5.6 7.1l4.8-2.6M5.6 8.9l4.8 2.6" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M5.5 8l1.8 1.8L10.5 6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function CircleIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+export function TrophyIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M4 2h8v4a4 4 0 01-8 0V2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M4 3H2v1a3 3 0 002.5 3M12 3h2v1a3 3 0 01-2.5 3" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M8 10v2M5.5 14h5M6 12h4v2H6v-2z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function TargetIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="8" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="8" cy="8" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function FlagIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M3 2v12M3 2.5h9l-2.5 3L12 8.5H3" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function AwardIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="6" r="4" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M5.5 9.5L4.5 14l3.5-2 3.5 2-1-4.5" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function MessageIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M2 3h12v8H6l-3 3v-3H2V3z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function ThumbsUpIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M2 7h2.5v7H2V7z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M4.5 7l2.5-5c1 0 1.5.7 1.5 1.5V6H12a1.3 1.3 0 011.2 1.8l-1.5 5A1.3 1.3 0 0110.5 14H4.5V7z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function EyeIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function BackIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function ForwardIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
