@@ -399,3 +399,100 @@ export function ForwardIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function GithubIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path
+        d="M8 1.3a6.7 6.7 0 00-2.1 13.06c.34.06.46-.15.46-.32v-1.13c-1.87.4-2.27-.9-2.27-.9-.3-.78-.75-.98-.75-.98-.6-.42.05-.4.05-.4.68.05 1.03.7 1.03.7.6 1.03 1.58.73 1.97.56.06-.44.24-.73.43-.9-1.5-.17-3.07-.75-3.07-3.33 0-.74.26-1.34.7-1.8-.07-.18-.3-.9.07-1.86 0 0 .58-.18 1.87.7a6.4 6.4 0 013.4 0c1.3-.88 1.87-.7 1.87-.7.37.96.14 1.68.07 1.86.44.46.7 1.06.7 1.8 0 2.59-1.58 3.15-3.08 3.32.24.21.46.63.46 1.27v1.88c0 .17.12.38.47.32A6.7 6.7 0 008 1.3z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function SparklesIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M8 1.5l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" fill="currentColor" />
+      <path d="M13 9.5l.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5-1.5-.5 1.5-.5.5-1.5z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function LightbulbIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M8 1.5a4.5 4.5 0 00-2.5 8.24c.3.2.5.55.5.93v.33h4v-.33c0-.38.2-.72.5-.93A4.5 4.5 0 008 1.5z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M6 13.5h4M6.5 14.9h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function RefreshIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path
+        d="M13.5 8A5.5 5.5 0 013 10.2M2.5 8A5.5 5.5 0 0113 5.8"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      <path d="M13 3.5v2.6h-2.6M3 12.5V9.9h2.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function GlobeIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M1.5 8h13M8 1.5c1.6 1.8 2.5 4 2.5 6.5s-.9 4.7-2.5 6.5c-1.6-1.8-2.5-4-2.5-6.5S6.4 3.3 8 1.5z" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function BranchIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="4" cy="3.5" r="1.5" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="4" cy="12.5" r="1.5" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="12" cy="8" r="1.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M4 5v6M4 6c0 3 3.5 3 6.5 3M12 6.5V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function PackageIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M8 1.5l6 3v7l-6 3-6-3v-7l6-3z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M2 4.5l6 3 6-3M8 7.5v7" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function LockIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <rect x="3.5" y="7" width="9" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function EditIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M10.5 2.5l3 3-8 8-3.5.5.5-3.5 8-8z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function SendIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M14 2L2 7.5l5 1.5 1.5 5L14 2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
