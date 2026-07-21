@@ -67,7 +67,17 @@ const journeySteps = [
   { key: "Submit Project", title: "Submit Project", desc: "Ship and get graded", tag: "" },
 ];
 
-export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: string }) {
+export function WorkspaceTab({
+  unlocked,
+  slug,
+  onProjectSubmitted,
+  onViewPhase2Videos,
+}: {
+  unlocked: boolean;
+  slug: string;
+  onProjectSubmitted?: () => void;
+  onViewPhase2Videos?: () => void;
+}) {
   const data = useMemo(() => getWorkspaceData(slug), [slug]);
   const [screen, setScreen] = useState<Screen>("Overview");
   const [hasStarted, setHasStarted] = useState(false);
@@ -83,6 +93,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
   const [showReferences, setShowReferences] = useState(false);
   const [chartRange, setChartRange] = useState<"Daily" | "Weekly" | "Monthly">("Daily");
   const [hoverDate, setHoverDate] = useState<string | null>(null);
+  const [githubDone, setGithubDone] = useState(false);
 
   if (!unlocked) {
     return (
@@ -105,7 +116,24 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
   const overallProgress = 42;
   const doneCount = buildTasks.filter((t) => t.done).length;
 
-  const stepIndex = screen === "Overview" ? -1 : stepOrder.indexOf(screen);
+  const engineeringPlanDone = answeredCount === data.questions.length;
+  const buildDone = doneCount === buildTasks.length;
+  const stepDone: Record<WorkflowStep, boolean> = {
+    "Engineering Plan": engineeringPlanDone,
+    "AI Review": engineeringPlanDone,
+    Build: buildDone,
+    "GitHub Engineering": githubDone,
+    "Submit Project": finalSubmitted,
+  };
+  const isStepUnlocked = (s: WorkflowStep) => {
+    if (stepDone[s]) return true;
+    if (s === "Engineering Plan") return true;
+    if (s === "AI Review") return answeredCount > 0;
+    if (s === "Build") return engineeringPlanDone;
+    if (s === "GitHub Engineering") return buildDone;
+    if (s === "Submit Project") return githubDone;
+    return false;
+  };
 
   const goToStep = (s: Screen) => setScreen(s);
 
@@ -168,13 +196,9 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           </button>
           {stepOrder.map((s, i) => {
             const isActive = s === screen;
-            const isPast = hasStarted && i < stepIndex;
+            const isDone = hasStarted && stepDone[s];
             const isLocked = !hasStarted;
-            const isReachable =
-              isPast ||
-              isActive ||
-              (s === "AI Review" && answeredCount > 0) ||
-              (s === "Build" && answeredCount > 0);
+            const isReachable = isDone || isActive || isStepUnlocked(s);
             return (
               <button
                 key={s}
@@ -183,12 +207,12 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${
                   isActive
                     ? "bg-[#ecfdf5] font-semibold text-brand"
-                    : isPast || isReachable
+                    : isDone || isReachable
                       ? "text-ink hover:bg-black/[0.02]"
                       : "text-ink-muted/50"
                 }`}
               >
-                {isPast ? (
+                {isDone ? (
                   <CheckCircleIcon className="size-4 shrink-0 text-brand" />
                 ) : (
                   <span className="flex size-4 shrink-0 items-center justify-center text-xs">{i + 2}</span>
@@ -202,25 +226,26 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
       {/* Center content */}
       <div className="min-w-0 flex-1 p-6">
-        {screen !== "Overview" && (
+        {(screen !== "Overview" || hasStarted) && (
           <div className="mb-6 flex items-center">
             {stepOrder.map((s, i) => {
-              const isPast = i < stepIndex;
-              const isActive = s === screen;
+              const isDone = stepDone[s];
+              const isActive = screen === "Overview" ? i === 0 : s === screen;
+              const isLocked = !isDone && !isActive && !isStepUnlocked(s);
               return (
                 <div key={s} className="flex flex-1 items-center last:flex-none">
                   <div className="flex flex-col items-center gap-1.5">
                     <span
                       className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${
-                        isPast || isActive ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted"
+                        isDone || isActive ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted"
                       }`}
                     >
-                      {isPast ? "✓" : i + 1}
+                      {isDone ? "✓" : isLocked ? <LockIcon className="size-3" /> : i + 1}
                     </span>
                     <span className="whitespace-nowrap text-[11px] text-ink-muted">{s}</span>
                   </div>
                   {i < stepOrder.length - 1 && (
-                    <div className={`mx-1.5 h-px flex-1 ${isPast ? "bg-brand" : "bg-black/10"}`} />
+                    <div className={`mx-1.5 h-px flex-1 ${isDone ? "bg-brand" : "bg-black/10"}`} />
                   )}
                 </div>
               );
@@ -346,6 +371,29 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
         {screen === "Overview" && hasStarted && (
           <div className="flex flex-col gap-5">
+            {finalSubmitted && (
+              <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                  <CheckCircleIcon className="size-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-emerald-800">🎉 Phase 2 Unlocked</p>
+                  <p className="text-xs text-emerald-700">
+                    Milestone 3 submitted and approved. The full Overview, Tech Stack, and Resources course view is
+                    now unlocked, and the Pro Solution walkthroughs for this milestone are available too.
+                  </p>
+                </div>
+                {onViewPhase2Videos && (
+                  <button
+                    type="button"
+                    onClick={onViewPhase2Videos}
+                    className="shrink-0 rounded-2xl bg-brand px-3 py-2 text-xs font-semibold text-white hover:bg-brand/90"
+                  >
+                    Watch Videos
+                  </button>
+                )}
+              </div>
+            )}
             <div>
               <h2 className="text-lg font-semibold text-ink">Welcome back, {data.userName}! 👋</h2>
               <p className="mt-1 text-sm text-ink-muted">Continue building your E-Commerce Platform with Next.js.</p>
@@ -975,11 +1023,12 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
               <button
                 type="button"
+                disabled={!buildDone}
                 onClick={() => setScreen("GitHub Engineering")}
-                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-brand py-2.5 text-sm font-semibold text-brand hover:bg-[#ecfdf5]"
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-brand py-2.5 text-sm font-semibold text-brand hover:bg-[#ecfdf5] disabled:cursor-not-allowed disabled:border-black/10 disabled:text-ink-muted disabled:hover:bg-transparent"
               >
                 <CheckCircleIcon className="size-4" />
-                Mark Milestone Complete
+                {buildDone ? "Mark Milestone Complete" : `Complete all tasks (${doneCount}/${buildTasks.length})`}
               </button>
             </div>
           </div>
@@ -1129,7 +1178,10 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
             <button
               type="button"
-              onClick={() => setScreen("Submit Project")}
+              onClick={() => {
+                setGithubDone(true);
+                setScreen("Submit Project");
+              }}
               className="ml-auto flex items-center gap-1.5 rounded-2xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand/90"
             >
               Continue to Submit
@@ -1154,6 +1206,27 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                 <p className="max-w-sm text-sm text-ink-muted">
                   Your mentor will review your submission and get back to you within 2-3 business days.
                 </p>
+                <span className="mt-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  🎉 Phase 2 Unlocked — Milestone 4 videos are ready
+                </span>
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setScreen("Overview")}
+                    className="rounded-2xl border border-black/[0.08] px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.02]"
+                  >
+                    Back to Overview
+                  </button>
+                  {onViewPhase2Videos && (
+                    <button
+                      type="button"
+                      onClick={onViewPhase2Videos}
+                      className="rounded-2xl bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand/90"
+                    >
+                      Watch Phase 2 Videos
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <>
@@ -1197,7 +1270,10 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                 <button
                   type="button"
                   disabled={!deployUrl.trim()}
-                  onClick={() => setFinalSubmitted(true)}
+                  onClick={() => {
+                    setFinalSubmitted(true);
+                    onProjectSubmitted?.();
+                  }}
                   className="flex items-center justify-center gap-1.5 rounded-2xl bg-brand py-3 text-sm font-semibold text-white hover:bg-brand/90 disabled:cursor-not-allowed disabled:bg-black/20"
                 >
                   <PackageIcon className="size-4" />
@@ -1271,7 +1347,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Workflow Steps</p>
           <div className="mt-1.5 flex flex-col gap-1.5 text-xs">
             {stepOrder.map((s, i) => (
-              <span key={s} className={i <= stepIndex ? "font-semibold text-brand" : "text-ink-muted"}>
+              <span key={s} className={stepDone[s] || s === screen ? "font-semibold text-brand" : "text-ink-muted"}>
                 {s}
               </span>
             ))}

@@ -1,5 +1,24 @@
 import { achievements, skillsCovered, weeklyActivity } from "@/lib/my-learning-data";
-import { AwardIcon, FlagIcon, TargetIcon, TrophyIcon } from "@/components/dashboard/icons";
+import {
+  AwardIcon,
+  FlagIcon,
+  FlameIcon,
+  GraduationIcon,
+  LibraryIcon,
+  StarIcon,
+  TargetIcon,
+  TrophyIcon,
+  UsersIcon,
+} from "@/components/dashboard/icons";
+
+const achievementIcons = {
+  trophy: TrophyIcon,
+  flame: FlameIcon,
+  star: StarIcon,
+  library: LibraryIcon,
+  users: UsersIcon,
+  graduation: GraduationIcon,
+};
 
 export function LearningSidebar() {
   const maxMinutes = Math.max(...weeklyActivity.map((d) => d.minutes), 1);
@@ -82,14 +101,24 @@ export function LearningSidebar() {
           <h3 className="text-sm font-semibold text-ink">Achievements</h3>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-3">
-          {achievements.map((name) => (
-            <div key={name} className="flex flex-col items-center gap-2 text-center">
-              <span className="flex size-9 items-center justify-center rounded-full bg-[#ecfdf5] text-brand">
-                <TrophyIcon className="size-4" />
-              </span>
-              <span className="text-[11px] leading-tight text-ink-muted">{name}</span>
-            </div>
-          ))}
+          {achievements.map((achievement) => {
+            const Icon = achievementIcons[achievement.icon];
+            return (
+              <div
+                key={achievement.name}
+                className={`flex flex-col items-center gap-2 rounded-lg p-2 text-center ${
+                  achievement.unlocked ? achievement.iconBg : "bg-[#f2f1ee]"
+                }`}
+              >
+                <span className={achievement.iconColor}>
+                  <Icon className="size-5" />
+                </span>
+                <span className={`text-[11px] font-medium leading-tight ${achievement.unlocked ? "text-ink" : "text-ink-muted"}`}>
+                  {achievement.name}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </aside>

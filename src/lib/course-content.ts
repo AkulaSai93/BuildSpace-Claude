@@ -79,6 +79,9 @@ export const relatedProjects = [
   },
 ];
 
+export const businessProblemParagraph =
+  "Building a production-ready e-commerce platform requires solving complex challenges around payment processing reliability, real-time inventory management, and scalable architecture. This project mirrors challenges faced by teams at Shopify, Amazon, and Stripe - from handling concurrent checkout sessions to preventing double-charges and maintaining sub-200ms response times under load.";
+
 export const whatYoullBuild = [
   "Product catalog with advanced filtering and search",
   "Stripe Checkout with webhook idempotency handling",

@@ -12,6 +12,7 @@ import { InterviewPrepTab } from "@/components/project/tabs/InterviewPrepTab";
 import { DiscussionTab } from "@/components/project/tabs/DiscussionTab";
 import { ReviewsTab } from "@/components/project/tabs/ReviewsTab";
 import { ProSolutionTab } from "@/components/project/tabs/ProSolutionTab";
+import { BuildJourneyContentTabs, type BuildJourneySubTab } from "@/components/project/tabs/BuildJourneyContentTabs";
 import { getProjectBySlug } from "@/lib/library-data";
 import {
   BackIcon,
@@ -24,14 +25,16 @@ import {
   VideoIcon,
 } from "@/components/dashboard/icons";
 
-const tabs = ["Learning Hub", "Workspace", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
-type Tab = (typeof tabs)[number];
+const baseTabs = ["Learning Hub", "Workspace", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
+const phase2Tabs = ["Overview", "Tech Stack", "Resources", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
+type Tab = (typeof baseTabs)[number] | (typeof phase2Tabs)[number];
 
 export default function ProjectDetailPage() {
   const params = useParams<{ slug: string }>();
   const project = getProjectBySlug(params.slug);
   const [activeTab, setActiveTab] = useState<Tab>("Learning Hub");
   const [workspaceUnlocked, setWorkspaceUnlocked] = useState(false);
+  const [projectSubmitted, setProjectSubmitted] = useState(false);
 
   if (!project) {
     notFound();
@@ -152,7 +155,7 @@ export default function ProjectDetailPage() {
           )}
 
           <div className="mt-6 flex items-center gap-1 border-b border-black/[0.08]">
-            {tabs.map((tab) => (
+            {(projectSubmitted ? phase2Tabs : baseTabs).map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -178,11 +181,32 @@ export default function ProjectDetailPage() {
                 }}
               />
             )}
-            {activeTab === "Workspace" && <WorkspaceTab unlocked={workspaceUnlocked} slug={project.slug} />}
-            {activeTab === "Interview Prep" && <InterviewPrepTab />}
-            {activeTab === "Discussion" && <DiscussionTab />}
-            {activeTab === "Reviews" && <ReviewsTab />}
-            {activeTab === "Pro Solution" && <ProSolutionTab />}
+            {activeTab === "Workspace" && (
+              <WorkspaceTab
+                unlocked={workspaceUnlocked}
+                slug={project.slug}
+                onProjectSubmitted={() => {
+                  setProjectSubmitted(true);
+                  setActiveTab("Overview");
+                }}
+                onViewPhase2Videos={() => {
+                  setActiveTab("Overview");
+                }}
+              />
+            )}
+            {projectSubmitted &&
+              (activeTab === "Overview" ||
+                activeTab === "Tech Stack" ||
+                activeTab === "Resources" ||
+                activeTab === "Interview Prep" ||
+                activeTab === "Discussion" ||
+                activeTab === "Reviews") && (
+                <BuildJourneyContentTabs initialSubTab={activeTab as BuildJourneySubTab} />
+              )}
+            {!projectSubmitted && activeTab === "Interview Prep" && <InterviewPrepTab />}
+            {!projectSubmitted && activeTab === "Discussion" && <DiscussionTab />}
+            {!projectSubmitted && activeTab === "Reviews" && <ReviewsTab />}
+            {activeTab === "Pro Solution" && <ProSolutionTab unlocked={projectSubmitted} />}
           </div>
         </main>
 

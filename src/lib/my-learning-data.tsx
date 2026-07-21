@@ -15,13 +15,19 @@ export const skillsCovered = [
   { name: "Node.js", percent: 52 },
 ];
 
-export const achievements = [
-  "First Build",
-  "7-Day Streak",
-  "Reviewer",
-  "Explorer",
-  "Helper",
-  "Graduate",
+export const achievements: {
+  name: string;
+  unlocked: boolean;
+  icon: "trophy" | "flame" | "star" | "library" | "users" | "graduation";
+  iconBg: string;
+  iconColor: string;
+}[] = [
+  { name: "First Build", unlocked: true, icon: "trophy", iconBg: "bg-[#fffbeb]", iconColor: "text-amber-600" },
+  { name: "7-Day Streak", unlocked: false, icon: "flame", iconBg: "bg-[#f2f1ee]", iconColor: "text-ink-muted" },
+  { name: "Reviewer", unlocked: true, icon: "star", iconBg: "bg-[#f5f3ff]", iconColor: "text-violet-600" },
+  { name: "Explorer", unlocked: true, icon: "library", iconBg: "bg-[#eff6ff]", iconColor: "text-blue-600" },
+  { name: "Helper", unlocked: false, icon: "users", iconBg: "bg-[#f2f1ee]", iconColor: "text-ink-muted" },
+  { name: "Graduate", unlocked: false, icon: "graduation", iconBg: "bg-[#f2f1ee]", iconColor: "text-ink-muted" },
 ];
 
 export const weeklyActivity = [
