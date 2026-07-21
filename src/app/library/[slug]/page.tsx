@@ -11,6 +11,7 @@ import { TechStackTab } from "@/components/project/tabs/TechStackTab";
 import { ResourcesTab } from "@/components/project/tabs/ResourcesTab";
 import { InterviewPrepTab } from "@/components/project/tabs/InterviewPrepTab";
 import { DiscussionTab } from "@/components/project/tabs/DiscussionTab";
+import { ReviewsTab } from "@/components/project/tabs/ReviewsTab";
 import { getProjectBySlug } from "@/lib/library-data";
 import {
   BackIcon,
@@ -161,9 +162,7 @@ export default function ProjectDetailPage() {
             {activeTab === "Resources" && <ResourcesTab />}
             {activeTab === "Interview Prep" && <InterviewPrepTab />}
             {activeTab === "Discussion" && <DiscussionTab />}
-            {activeTab === "Reviews" && (
-              <p className="text-sm text-ink-muted">Reviews coming soon.</p>
-            )}
+            {activeTab === "Reviews" && <ReviewsTab />}
           </div>
         </main>
 

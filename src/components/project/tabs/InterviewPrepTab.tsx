@@ -43,15 +43,15 @@ export function InterviewPrepTab() {
               {isOpen && questions.length > 0 && (
                 <div className="flex flex-col divide-y divide-black/[0.06] border-t border-black/[0.06]">
                   {questions.map((q) => (
-                    <div key={q.question} className="flex flex-col gap-1 px-4 py-4">
-                      <div className="flex gap-3">
-                        <span className="w-[65px] shrink-0 rounded-[14px] bg-[#f2f1ee] px-2 py-0.5 text-center text-xs font-medium text-ink-muted">
+                    <div key={q.question} className="flex flex-col gap-2.5 px-4 py-4">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="w-fit shrink-0 whitespace-nowrap rounded-[14px] bg-[#f2f1ee] px-2 py-0.5 text-xs font-medium text-ink-muted">
                           {q.type}
                         </span>
                         <p className="text-sm font-medium text-ink">{q.question}</p>
                       </div>
-                      <div className="flex gap-3">
-                        <span className="w-[65px] shrink-0 rounded-[14px] bg-[#f2f1ee] px-2 py-0.5 text-center text-xs font-medium text-ink-muted">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="w-fit shrink-0 whitespace-nowrap rounded-[14px] bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">
                           Answer
                         </span>
                         <p className="text-sm text-ink-muted">{q.answer}</p>

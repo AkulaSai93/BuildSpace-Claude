@@ -90,14 +90,78 @@ export const systemArchitecture = {
 };
 
 export const techStackDetail = [
-  { name: "Next.js 14", role: "Full-stack React framework with App Router", category: "Framework" },
-  { name: "TypeScript", role: "Static typing across the entire codebase", category: "Language" },
-  { name: "PostgreSQL", role: "Primary relational database", category: "Database" },
-  { name: "Prisma", role: "Type-safe ORM and migrations", category: "Database" },
-  { name: "Stripe", role: "Payments, checkout, and webhooks", category: "Payments" },
-  { name: "Redis", role: "Caching, sessions, and rate limiting", category: "Infrastructure" },
-  { name: "NextAuth.js", role: "Authentication with OAuth providers", category: "Auth" },
-  { name: "Tailwind CSS", role: "Utility-first styling", category: "Styling" },
+  {
+    name: "Next.js 14",
+    initials: "NE",
+    version: "v14.2",
+    role: "React framework with App Router, Server Components, and built-in API routes",
+    category: "Framework",
+    whyWeChoseIt: "Industry standard for production React apps with SSR, SSG, and edge runtime support",
+    difficulty: "Intermediate" as const,
+  },
+  {
+    name: "TypeScript",
+    initials: "TY",
+    version: "v5.3",
+    role: "Static type checking, improved IDE support, and safer large-scale refactoring",
+    category: "Language",
+    whyWeChoseIt: "Required for production-grade apps - catches errors at compile time, not in production",
+    difficulty: "Intermediate" as const,
+  },
+  {
+    name: "PostgreSQL",
+    initials: "PO",
+    version: "v16",
+    role: "Primary relational database for products, orders, users, and inventory data",
+    category: "Database",
+    whyWeChoseIt: "ACID compliance, advanced JSON support, excellent Prisma integration, proven at scale",
+    difficulty: "Intermediate" as const,
+  },
+  {
+    name: "Prisma",
+    initials: "PR",
+    version: "v5.8",
+    role: "Type-safe database client, schema management, and auto-generated migrations",
+    category: "ORM",
+    whyWeChoseIt: "Best-in-class TypeScript ORM with auto-generated types and a readable query API",
+    difficulty: "Beginner" as const,
+  },
+  {
+    name: "Stripe",
+    initials: "ST",
+    version: "vAPI 2024-11",
+    role: "Payment processing, Checkout sessions, webhooks, and subscription management",
+    category: "Payments",
+    whyWeChoseIt: "Industry standard payment infrastructure - best DX, compliance handled out of the box",
+    difficulty: "Intermediate" as const,
+  },
+  {
+    name: "Redis",
+    initials: "RE",
+    version: "v7.2",
+    role: "Session storage, rate limiting, cart persistence, and API response caching",
+    category: "Cache",
+    whyWeChoseIt: "Sub-millisecond reads for hot data, reducing database load by 60-80% under traffic",
+    difficulty: "Intermediate" as const,
+  },
+  {
+    name: "NextAuth.js",
+    initials: "NA",
+    version: "v5",
+    role: "Authentication with Google & GitHub OAuth providers and session management",
+    category: "Auth",
+    whyWeChoseIt: "First-class Next.js integration with secure defaults and minimal boilerplate",
+    difficulty: "Intermediate" as const,
+  },
+  {
+    name: "Tailwind CSS",
+    initials: "TW",
+    version: "v3.4",
+    role: "Utility-first styling for consistent, responsive design across the app",
+    category: "Styling",
+    whyWeChoseIt: "Fast iteration without context-switching to separate CSS files, tiny production bundle",
+    difficulty: "Beginner" as const,
+  },
 ];
 
 export const resourceCategories = ["All", "Planning", "Architecture", "Database", "API", "Design", "Code", "DevOps"] as const;
@@ -149,6 +213,51 @@ export const interviewQuestions = {
   "System Design Questions": [],
   "Behavioral Questions": [],
 };
+
+export const reviewSummary = {
+  average: 4.9,
+  total: 2841,
+  breakdown: [
+    { stars: 5, percent: 78 },
+    { stars: 4, percent: 15 },
+    { stars: 3, percent: 4 },
+    { stars: 2, percent: 2 },
+    { stars: 1, percent: 1 },
+  ],
+};
+
+export const reviews = [
+  {
+    initials: "AC",
+    name: "Aditi Chawla",
+    role: "Full-Stack Developer",
+    rating: 5,
+    date: "3 days ago",
+    title: "Best e-commerce course I've taken",
+    body: "The Stripe webhook section alone was worth the price. Clear explanations of idempotency, inventory locking, and production deployment. Went from tutorial-level knowledge to actually shipping a real store.",
+    helpful: 34,
+  },
+  {
+    initials: "RK",
+    name: "Ravi Kumar",
+    role: "Backend Engineer",
+    rating: 5,
+    date: "1 week ago",
+    title: "Excellent depth on architecture decisions",
+    body: "Loved that every technology choice came with a 'why we chose it' explanation instead of just telling us what to type. The Prisma and Redis sections were especially well paced.",
+    helpful: 21,
+  },
+  {
+    initials: "LM",
+    name: "Laura Martins",
+    role: "Frontend Developer",
+    rating: 4,
+    date: "2 weeks ago",
+    title: "Great content, a bit fast in places",
+    body: "The frontend module moves quickly if you're newer to Next.js App Router, but the resources and discussion threads filled in the gaps. Would recommend pausing often.",
+    helpful: 12,
+  },
+];
 
 export const discussionComments = [
   {

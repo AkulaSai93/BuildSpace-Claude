@@ -84,7 +84,7 @@ export default function LibraryPage() {
               className="w-full bg-transparent text-sm text-ink placeholder:text-ink-muted focus:outline-none"
             />
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
             {libraryCategories.map((cat) => {
               const active = cat.label === activeCategory;
               return (
@@ -92,7 +92,7 @@ export default function LibraryPage() {
                   key={cat.label}
                   type="button"
                   onClick={() => setActiveCategory(cat.label)}
-                  className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
                     active ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink hover:bg-black/10"
                   }`}
                 >

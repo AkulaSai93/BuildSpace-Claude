@@ -13,17 +13,30 @@ import {
   ShieldIcon,
 } from "@/components/dashboard/icons";
 
-export const libraryCategories: (LibraryCategory & { icon: ReactNode })[] = [
-  { label: "All Projects", count: 248, icon: <CheckBadgeIcon className="size-3.5" /> },
-  { label: "Full Stack", count: 64, icon: <LayersIcon className="size-3.5" /> },
-  { label: "Frontend", count: 48, icon: <MonitorIcon className="size-3.5" /> },
-  { label: "Backend", count: 36, icon: <ServerIcon className="size-3.5" /> },
-  { label: "AI / ML", count: 32, icon: <BrainIcon className="size-3.5" /> },
-  { label: "Mobile", count: 28, icon: <PhoneIcon className="size-3.5" /> },
-  { label: "Cloud / DevOps", count: 24, icon: <CloudIcon className="size-3.5" /> },
-  { label: "Blockchain", count: 14, icon: <LinkIcon className="size-3.5" /> },
-  { label: "Cyber Security", count: 12, icon: <ShieldIcon className="size-3.5" /> },
-  { label: "IoT", count: 10, icon: <CpuIcon className="size-3.5" /> },
+const categoryIcons: Record<string, ReactNode> = {
+  "All Projects": <CheckBadgeIcon className="size-3.5" />,
+  "Full Stack": <LayersIcon className="size-3.5" />,
+  Frontend: <MonitorIcon className="size-3.5" />,
+  Backend: <ServerIcon className="size-3.5" />,
+  "AI / ML": <BrainIcon className="size-3.5" />,
+  Mobile: <PhoneIcon className="size-3.5" />,
+  "Cloud / DevOps": <CloudIcon className="size-3.5" />,
+  Blockchain: <LinkIcon className="size-3.5" />,
+  "Cyber Security": <ShieldIcon className="size-3.5" />,
+  IoT: <CpuIcon className="size-3.5" />,
+};
+
+const categoryOrder = [
+  "All Projects",
+  "Full Stack",
+  "Frontend",
+  "Backend",
+  "AI / ML",
+  "Mobile",
+  "Cloud / DevOps",
+  "Blockchain",
+  "Cyber Security",
+  "IoT",
 ];
 
 export const technologyFilters = [
@@ -159,8 +172,99 @@ export const projects: ProjectSummary[] = [
     status: "completed",
     completedOn: "Nov 2, 2024",
   },
+  {
+    slug: "task-management-api",
+    title: "Task Management REST API with Express & MongoDB",
+    shortDescription:
+      "Build a production-grade backend service with authentication, role-based access control, rate limiting, and background job queues.",
+    category: "Backend",
+    thumbnail: "/images/Image (Microservices Architecture with Docker, Kubernetes & Node.js).png",
+    isPro: true,
+    tags: ["Node.js", "Express", "MongoDB", "JWT", "BullMQ"],
+    level: "Intermediate",
+    rating: 4.6,
+    reviewCount: 980,
+    videoCount: 52,
+    duration: "26h 10m",
+    learners: "5,200",
+    instructor: { name: "Rahul Nair", title: "Backend Engineer, ex-Amazon" },
+  },
+  {
+    slug: "fitness-tracker-mobile",
+    title: "Fitness Tracker Mobile App with React Native & HealthKit",
+    shortDescription:
+      "Create a cross-platform fitness app with workout logging, step tracking, health data sync, and social challenges.",
+    category: "Mobile",
+    thumbnail: "/images/Image (AI-Powered Resume Builder with OpenAI & FastAPI).png",
+    isPro: true,
+    tags: ["React Native", "TypeScript", "HealthKit", "Firebase"],
+    level: "Intermediate",
+    rating: 4.5,
+    reviewCount: 760,
+    videoCount: 60,
+    duration: "30h 40m",
+    learners: "4,100",
+    instructor: { name: "Ana Rodrigues", title: "Mobile Lead, ex-Strava" },
+  },
+  {
+    slug: "nft-marketplace",
+    title: "NFT Marketplace with Solidity, Hardhat & Ethers.js",
+    shortDescription:
+      "Ship a full on-chain marketplace with smart contract minting, royalties, auctions, and a wallet-connected frontend.",
+    category: "Blockchain",
+    thumbnail: "/images/Image (Netflix Clone with React, Firebase & TMDb API).png",
+    isPro: true,
+    tags: ["Solidity", "Hardhat", "Ethers.js", "React", "IPFS"],
+    level: "Advanced",
+    rating: 4.6,
+    reviewCount: 540,
+    videoCount: 64,
+    duration: "36h 20m",
+    learners: "3,000",
+    instructor: { name: "Jonas Weber", title: "Smart Contract Engineer" },
+  },
+  {
+    slug: "vulnerability-scanner",
+    title: "Automated Vulnerability Scanner with Python & OWASP ZAP",
+    shortDescription:
+      "Build a security scanning pipeline that crawls web apps, flags OWASP Top 10 issues, and generates remediation reports.",
+    category: "Cyber Security",
+    thumbnail: "/images/Image (Social Media Dashboard with React, GraphQL & MongoDB).png",
+    isPro: true,
+    tags: ["Python", "OWASP ZAP", "Docker", "CI/CD"],
+    level: "Advanced",
+    rating: 4.7,
+    reviewCount: 410,
+    videoCount: 44,
+    duration: "24h 30m",
+    learners: "2,600",
+    instructor: { name: "Meera Iyer", title: "AppSec Engineer" },
+  },
+  {
+    slug: "smart-home-hub",
+    title: "Smart Home Hub with MQTT, Raspberry Pi & Next.js",
+    shortDescription:
+      "Design an IoT control hub that connects sensors and smart devices over MQTT with a real-time dashboard and automation rules.",
+    category: "IoT",
+    thumbnail: "/images/Image (E-Commerce Platform with Next.js 14, Stripe & PostgreSQL).png",
+    isPro: false,
+    tags: ["MQTT", "Raspberry Pi", "Next.js", "WebSockets"],
+    level: "Intermediate",
+    rating: 4.4,
+    reviewCount: 320,
+    videoCount: 38,
+    duration: "20h 15m",
+    learners: "1,900",
+    instructor: { name: "Tom Becker", title: "IoT Systems Engineer" },
+  },
 ];
 
 export function getProjectBySlug(slug: string) {
   return projects.find((p) => p.slug === slug);
 }
+
+export const libraryCategories: (LibraryCategory & { icon: ReactNode })[] = categoryOrder.map((label) => ({
+  label,
+  count: label === "All Projects" ? projects.length : projects.filter((p) => p.category === label).length,
+  icon: categoryIcons[label],
+}));
