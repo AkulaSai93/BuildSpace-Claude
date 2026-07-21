@@ -100,13 +100,29 @@ export const techStackDetail = [
   { name: "Tailwind CSS", role: "Utility-first styling", category: "Styling" },
 ];
 
-export const resourceFiles = [
-  { name: "Business Requirements Document", type: "PDF", size: "2.4 MB" },
-  { name: "System Architecture Diagrams", type: "Figma", size: "8.1 MB" },
-  { name: "Database Schema (ERD)", type: "PDF", size: "1.1 MB" },
-  { name: "API Specification (OpenAPI 3.0)", type: "YAML", size: "340 KB" },
-  { name: "Starter Codebase", type: "ZIP", size: "12.6 MB" },
-  { name: "Final Source Code", type: "ZIP", size: "18.3 MB" },
+export const resourceCategories = ["All", "Planning", "Architecture", "Database", "API", "Design", "Code", "DevOps"] as const;
+export type ResourceCategory = (typeof resourceCategories)[number];
+
+export const resourceFiles: {
+  name: string;
+  type: string;
+  size: string;
+  downloads: string;
+  category: Exclude<ResourceCategory, "All">;
+}[] = [
+  { name: "Product Requirements Document (PRD)", type: "PDF", size: "2.4 MB", downloads: "8,420 downloads", category: "Planning" },
+  { name: "Business Requirements Document (BRD)", type: "PDF", size: "1.8 MB", downloads: "6,180 downloads", category: "Planning" },
+  { name: "High-Level Design (HLD)", type: "PDF", size: "3.2 MB", downloads: "7,240 downloads", category: "Architecture" },
+  { name: "System Architecture Diagram", type: "PNG", size: "1.2 MB", downloads: "9,100 downloads", category: "Architecture" },
+  { name: "Entity-Relationship (ER) Diagram", type: "PNG", size: "850 KB", downloads: "7,680 downloads", category: "Database" },
+  { name: "Database Schema", type: "SQL", size: "24 KB", downloads: "11,200 downloads", category: "Database" },
+  { name: "API Documentation (OpenAPI 3.0)", type: "YAML", size: "48 KB", downloads: "8,940 downloads", category: "API" },
+  { name: "Postman Collection", type: "JSON", size: "128 KB", downloads: "10,400 downloads", category: "API" },
+  { name: "Figma Design File", type: "Figma", size: "18 MB", downloads: "14,800 downloads", category: "Design" },
+  { name: "Starter Code Repository", type: "ZIP", size: "2.8 MB", downloads: "12,100 downloads", category: "Code" },
+  { name: "Final Source Code", type: "ZIP", size: "8.4 MB", downloads: "11,800 downloads", category: "Code" },
+  { name: "Deployment Guide", type: "PDF", size: "1.1 MB", downloads: "9,200 downloads", category: "DevOps" },
+  { name: "Environment Variables Template", type: "ENV", size: "4 KB", downloads: "13,400 downloads", category: "DevOps" },
 ];
 
 export const interviewQuestions = {

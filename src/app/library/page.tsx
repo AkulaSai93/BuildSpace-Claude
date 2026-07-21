@@ -20,6 +20,25 @@ export default function LibraryPage() {
   const [activeCategory, setActiveCategory] = useState("All Projects");
   const [view, setView] = useState<ViewMode>("grid");
   const [query, setQuery] = useState("");
+  const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
+  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
+
+  const toggleDifficulty = (value: string) => {
+    setSelectedDifficulties((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+    );
+  };
+
+  const toggleTechnology = (value: string) => {
+    setSelectedTechnologies((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedDifficulties([]);
+    setSelectedTechnologies([]);
+  };
 
   const filtered = useMemo(() => {
     return projects.filter((p) => {
@@ -28,9 +47,19 @@ export default function LibraryPage() {
         query.trim() === "" ||
         p.title.toLowerCase().includes(query.toLowerCase()) ||
         p.tags.some((t) => t.toLowerCase().includes(query.toLowerCase()));
-      return matchesCategory && matchesQuery;
+      const matchesDifficulty =
+        selectedDifficulties.length === 0 || selectedDifficulties.includes(p.level);
+      const matchesTechnology =
+        selectedTechnologies.length === 0 ||
+        selectedTechnologies.some((tech) => p.tags.some((t) => t.toLowerCase() === tech.toLowerCase()));
+      return matchesCategory && matchesQuery && matchesDifficulty && matchesTechnology;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, query, selectedDifficulties, selectedTechnologies]);
+
+  const activeFilters = [
+    ...selectedDifficulties.map((value) => ({ type: "difficulty" as const, value })),
+    ...selectedTechnologies.map((value) => ({ type: "technology" as const, value })),
+  ];
 
   return (
     <div className="min-h-screen bg-[#faf9f7]">
@@ -76,9 +105,46 @@ export default function LibraryPage() {
         </div>
 
         <div className="flex w-full gap-6">
-          <FilterSidebar />
+          <FilterSidebar
+            selectedDifficulties={selectedDifficulties}
+            onToggleDifficulty={toggleDifficulty}
+            selectedTechnologies={selectedTechnologies}
+            onToggleTechnology={toggleTechnology}
+          />
 
           <div className="flex min-w-0 flex-1 flex-col gap-[18px]">
+            {activeFilters.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                {activeFilters.map((filter) => (
+                  <span
+                    key={`${filter.type}-${filter.value}`}
+                    className="flex items-center gap-1.5 rounded-full bg-[#ecfdf5] px-3 py-1 text-sm font-medium text-brand"
+                  >
+                    {filter.value}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${filter.value} filter`}
+                      onClick={() =>
+                        filter.type === "difficulty"
+                          ? toggleDifficulty(filter.value)
+                          : toggleTechnology(filter.value)
+                      }
+                      className="text-brand/70 hover:text-brand"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="text-sm font-medium text-ink-muted underline hover:text-ink"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+
             <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
