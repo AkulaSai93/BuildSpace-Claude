@@ -59,7 +59,18 @@ export function CourseMetaSidebar({ project }: { project: ProjectSummary }) {
       <div className="rounded-xl border border-black/[0.08] bg-white p-4">
         <p className="mb-3 text-sm font-semibold text-ink">Instructor</p>
         <div className="flex items-center gap-3">
-          <div className="size-10 shrink-0 rounded-full bg-gradient-to-br from-stone-300 to-stone-400" />
+          {project.instructor.name === "Alex Chen" ? (
+            <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-stone-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/source/Image (Alex Chen).png"
+                alt={project.instructor.name}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="size-10 shrink-0 rounded-full bg-gradient-to-br from-stone-300 to-stone-400" />
+          )}
           <div>
             <p className="text-sm font-semibold text-ink">{project.instructor.name}</p>
             <p className="text-xs leading-snug text-ink-muted">{project.instructor.title}</p>

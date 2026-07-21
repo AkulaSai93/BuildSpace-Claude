@@ -108,7 +108,14 @@ export default function ProjectDetailPage() {
           </div>
 
           <div className="mt-6 overflow-hidden rounded-xl border border-black/[0.08] bg-black">
-            <div className="relative flex aspect-video w-full items-center justify-center bg-gradient-to-br from-stone-700 to-stone-900">
+            <div className="relative flex aspect-video w-full items-center justify-center bg-black">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/source/Image (Video preview).png"
+                alt="Video preview"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/20" />
               <div className="absolute left-4 top-4 flex items-center gap-2 text-xs text-white/80">
                 <span className="rounded bg-black/40 px-2 py-1 font-semibold tracking-wide">LESSON 6</span>
                 <span className="rounded bg-black/40 px-2.5 py-1">Database Schema Design · 20:45</span>
