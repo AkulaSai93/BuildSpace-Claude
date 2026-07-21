@@ -26,11 +26,21 @@ function StatRow({ icon, label, value }: { icon: ReactNode; label: string; value
 }
 
 export function CourseMetaSidebar({ project }: { project: ProjectSummary }) {
+  const percentComplete = project.progress?.percentComplete ?? 0;
+  const angle = Math.round((percentComplete / 100) * 360);
+
   return (
     <aside className="flex w-[303px] shrink-0 flex-col gap-4 p-5">
       <div className="rounded-xl border border-black/[0.08] bg-white p-4">
         <div className="flex items-center gap-3">
-          <div className="relative size-[42px] shrink-0 rounded-full border-2 border-brand/20" />
+          <div
+            className="relative flex size-[42px] shrink-0 items-center justify-center rounded-full"
+            style={{
+              background: `conic-gradient(#065f46 ${angle}deg, #e7e5e0 ${angle}deg)`,
+            }}
+          >
+            <div className="flex size-[34px] items-center justify-center rounded-full bg-white" />
+          </div>
           <div>
             <p className="text-sm font-semibold text-ink">
               {project.progress?.percentComplete ?? 0}% complete
@@ -87,7 +97,14 @@ export function CourseMetaSidebar({ project }: { project: ProjectSummary }) {
               href={`/library/${rp.slug}`}
               className="flex items-center gap-3 rounded-lg hover:bg-black/[0.02]"
             >
-              <div className="size-[50px] shrink-0 rounded bg-gradient-to-br from-stone-200 to-stone-300" />
+              <div className="relative size-[50px] shrink-0 overflow-hidden rounded bg-stone-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={encodeURI(rp.thumbnail)}
+                  alt={rp.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
               <div className="min-w-0">
                 <p className="line-clamp-2 text-xs font-medium leading-snug text-ink">{rp.title}</p>
                 <p className="text-xs text-ink-muted">{rp.duration}</p>

@@ -59,9 +59,24 @@ export const courseStats = {
 };
 
 export const relatedProjects = [
-  { title: "Real-Time Chat App with Socket.io, Redis & React", duration: "38h 15m", slug: "realtime-chat" },
-  { title: "AI-Powered Resume Builder with OpenAI & FastAPI", duration: "28h 45m", slug: "ai-resume-builder" },
-  { title: "Netflix Clone with React, Firebase & TMDb API", duration: "22h 10m", slug: "netflix-clone" },
+  {
+    title: "Real-Time Chat App with Socket.io, Redis & React",
+    duration: "38h 15m",
+    slug: "realtime-chat",
+    thumbnail: "/images/Image (Real-Time Chat App with Socket.io, Redis & React).png",
+  },
+  {
+    title: "AI-Powered Resume Builder with OpenAI & FastAPI",
+    duration: "28h 45m",
+    slug: "ai-resume-builder",
+    thumbnail: "/images/Image (AI-Powered Resume Builder with OpenAI & FastAPI).png",
+  },
+  {
+    title: "Netflix Clone with React, Firebase & TMDb API",
+    duration: "22h 10m",
+    slug: "netflix-clone",
+    thumbnail: "/images/Image (Netflix Clone with React, Firebase & TMDb API).png",
+  },
 ];
 
 export const whatYoullBuild = [
