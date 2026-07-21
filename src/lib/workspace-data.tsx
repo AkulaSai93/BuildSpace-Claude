@@ -21,10 +21,18 @@ export interface AiReview {
   betterApproach: string[];
 }
 
+export interface CommitDetail {
+  message: string;
+  hash: string;
+  added: number;
+  deleted: number;
+}
+
 export interface WorkspaceData {
+  userName: string;
   repo: { name: string; owner: string };
   branch: { current: string; lastCommit: string; sha: string; openPrs: number };
-  milestone: { sprint: string; label: string; progress: number };
+  milestone: { sprint: string; label: string; progress: number; estCompletion: string; taskLabel: string };
   questions: EngineeringQuestion[];
   reviews: Record<string, AiReview>;
   buildTasks: { label: string; done: boolean; current?: boolean }[];
@@ -35,12 +43,23 @@ export interface WorkspaceData {
     commits: { date: string; count: number }[];
     stats: { label: string; value: string; delta: string }[];
   };
+  commitDetails: Record<string, CommitDetail[]>;
+  returningStats: { currentSprint: string; currentMilestone: string; tasksCompleted: string };
+  buildBreakdown: { label: string; percent: number; color: string }[];
+  validationChecks: { label: string; status: "Passed" | "Failed" | "Pending" }[];
 }
 
 const ecommerceWorkspace: WorkspaceData = {
+  userName: "Deepak",
   repo: { name: "cartflow-api", owner: "you" },
   branch: { current: "feat/cart-api", lastCommit: "2 hours ago", sha: "a3f92b1", openPrs: 1 },
-  milestone: { sprint: "Sprint 2 · Milestone 3/5", label: "Milestone 3: Cart & Products API", progress: 40 },
+  milestone: {
+    sprint: "Sprint 2 · Milestone 3/5",
+    label: "Milestone 3: Cart & Products API",
+    progress: 40,
+    estCompletion: "Dec 28",
+    taskLabel: "Implement Cart & Products API",
+  },
   questions: [
     {
       id: "q1",
@@ -202,6 +221,37 @@ const ecommerceWorkspace: WorkspaceData = {
       { label: "Files Changed", value: "512", delta: "+15%" },
     ],
   },
+  commitDetails: {
+    "Jun 3": [
+      { message: "feat(auth): add login validation", hash: "a1b2c3d", added: 120, deleted: 12 },
+      { message: "fix(auth): handle empty token", hash: "d4e5f6a", added: 18, deleted: 6 },
+      { message: "feat(user): add user profile endpoint", hash: "b7c8d9e", added: 85, deleted: 4 },
+      { message: "refactor(auth): simplify auth middleware", hash: "e1f2a3b", added: 36, deleted: 22 },
+      { message: "chore: update .env.example", hash: "c3d4e5f", added: 6, deleted: 0 },
+      { message: "feat(db): add user preferences table", hash: "f6a7b8c", added: 62, deleted: 1 },
+      { message: "fix(db): correct unique constraint", hash: "a9b8c7d", added: 8, deleted: 3 },
+      { message: "feat(api): add logout endpoint", hash: "c8d7e6f", added: 24, deleted: 2 },
+      { message: "docs: update auth API documentation", hash: "d1e2f3a", added: 15, deleted: 0 },
+      { message: "test(auth): add unit tests for login", hash: "f3e2d1c", added: 45, deleted: 1 },
+      { message: "fix(ui): handle login error state", hash: "b2c3d4e", added: 22, deleted: 5 },
+      { message: "feat(ui): add loading state for login", hash: "e5f6a7b", added: 30, deleted: 0 },
+    ],
+  },
+  returningStats: { currentSprint: "Sprint 2 · Backend", currentMilestone: "Milestone 3\nCart & Products API", tasksCompleted: "3/6 This week" },
+  buildBreakdown: [
+    { label: "Backend", percent: 80, color: "#065f46" },
+    { label: "Database", percent: 40, color: "#7c3aed" },
+    { label: "Deployment", percent: 0, color: "#a1a1aa" },
+    { label: "Frontend", percent: 30, color: "#d97706" },
+    { label: "Testing", percent: 0, color: "#2563eb" },
+  ],
+  validationChecks: [
+    { label: "Authentication", status: "Passed" },
+    { label: "Database", status: "Passed" },
+    { label: "API Endpoints", status: "Passed" },
+    { label: "Testing", status: "Failed" },
+    { label: "Security", status: "Pending" },
+  ],
 };
 
 const genericWorkspace: WorkspaceData = {

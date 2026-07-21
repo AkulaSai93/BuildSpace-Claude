@@ -4,22 +4,53 @@ import { useMemo, useState } from "react";
 import {
   ArrowRightIcon,
   BranchIcon,
+  CheckBadgeIcon,
   CheckCircleIcon,
+  ChevronDownIcon,
   ClockIcon,
+  CpuIcon,
   EditIcon,
   GithubIcon,
   GlobeIcon,
+  LayersIcon,
   LightbulbIcon,
+  ListIcon,
   LockIcon,
+  LibraryIcon,
+  MonitorIcon,
   PackageIcon,
   RefreshIcon,
   SendIcon,
   ShieldIcon,
   SparklesIcon,
 } from "@/components/dashboard/icons";
+
+const scoreIconMap: Record<string, { icon: typeof LayersIcon; color: string }> = {
+  Architecture: { icon: LayersIcon, color: "text-sky-500" },
+  Security: { icon: ShieldIcon, color: "text-red-500" },
+  Scalability: { icon: MonitorIcon, color: "text-purple-500" },
+  Performance: { icon: CpuIcon, color: "text-amber-500" },
+  Maintainability: { icon: CheckBadgeIcon, color: "text-emerald-500" },
+};
+
+function ScoreIcon({ label }: { label: string }) {
+  const entry = scoreIconMap[label];
+  if (!entry) return null;
+  const Icon = entry.icon;
+  return <Icon className={`size-3 shrink-0 ${entry.color}`} />;
+}
+
+const chipColorMap: Record<string, string> = {
+  Architecture: "bg-sky-50 text-sky-700",
+  Security: "bg-red-50 text-red-700",
+  Scalability: "bg-purple-50 text-purple-700",
+  Performance: "bg-amber-50 text-amber-700",
+  Maintainability: "bg-emerald-50 text-emerald-700",
+};
 import { getWorkspaceData, mentorTips, workflowSteps, type WorkflowStep } from "@/lib/workspace-data";
 
 const stepOrder: WorkflowStep[] = [...workflowSteps];
+type Screen = "Overview" | WorkflowStep;
 
 function scoreColor(v: number) {
   if (v >= 80) return "bg-emerald-500";
@@ -27,9 +58,19 @@ function scoreColor(v: number) {
   return "bg-red-500";
 }
 
+const journeySteps = [
+  { key: "Learning Hub", title: "Learning Hub", desc: "Understand the problem and architecture", tag: "Completed" },
+  { key: "Engineering Plan", title: "Engineering Plan", desc: "Think before you build", tag: "Up Next" },
+  { key: "AI Review", title: "AI Review", desc: "Get feedback from an AI senior engineer", tag: "" },
+  { key: "Build", title: "Build", desc: "Implement your solution", tag: "" },
+  { key: "GitHub Engineering", title: "GitHub Engineering", desc: "Track your progress and activity", tag: "" },
+  { key: "Submit Project", title: "Submit Project", desc: "Ship and get graded", tag: "" },
+];
+
 export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: string }) {
   const data = useMemo(() => getWorkspaceData(slug), [slug]);
-  const [step, setStep] = useState<WorkflowStep>("Engineering Plan");
+  const [screen, setScreen] = useState<Screen>("Overview");
+  const [hasStarted, setHasStarted] = useState(false);
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState<Record<string, boolean>>({});
@@ -37,6 +78,11 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
   const [buildTasks, setBuildTasks] = useState(data.buildTasks);
   const [deployUrl, setDeployUrl] = useState("");
   const [finalSubmitted, setFinalSubmitted] = useState(false);
+  const [openCommitDay, setOpenCommitDay] = useState<string | null>(null);
+  const [showCriteria, setShowCriteria] = useState(false);
+  const [showReferences, setShowReferences] = useState(false);
+  const [chartRange, setChartRange] = useState<"Daily" | "Weekly" | "Monthly">("Daily");
+  const [hoverDate, setHoverDate] = useState<string | null>(null);
 
   if (!unlocked) {
     return (
@@ -59,21 +105,25 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
   const overallProgress = 42;
   const doneCount = buildTasks.filter((t) => t.done).length;
 
-  const stepIndex = stepOrder.indexOf(step);
+  const stepIndex = screen === "Overview" ? -1 : stepOrder.indexOf(screen);
 
-  const goToStep = (s: WorkflowStep) => setStep(s);
+  const goToStep = (s: Screen) => setScreen(s);
+
+  const startEngineeringPlan = () => {
+    setHasStarted(true);
+    setScreen("Engineering Plan");
+  };
 
   const submitForReview = () => {
     setSubmitted((prev) => ({ ...prev, [question.id]: true }));
-    setStep("AI Review");
   };
 
   const continueToBuild = () => {
     if (qIndex < data.questions.length - 1) {
       setQIndex((i) => i + 1);
-      setStep("Engineering Plan");
+      setScreen("Engineering Plan");
     } else {
-      setStep("Build");
+      setScreen("Build");
     }
   };
 
@@ -83,8 +133,15 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
     );
   };
 
+  const openCommitCount = openCommitDay ? data.github.commits.find((c) => c.date === openCommitDay)?.count ?? 0 : 0;
+  const commitPopupData =
+    openCommitDay &&
+    (data.commitDetails[openCommitDay] ?? [
+      { message: `${openCommitCount} commits recorded on ${openCommitDay}`, hash: "—", added: openCommitCount * 12, deleted: Math.round(openCommitCount * 1.5) },
+    ]);
+
   return (
-    <div className="flex w-full">
+    <div className="relative flex w-full">
       {/* Left rail */}
       <aside className="flex w-[240px] shrink-0 flex-col gap-4 border-r border-black/[0.06] bg-white p-5">
         <div>
@@ -95,22 +152,38 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           </div>
         </div>
         <nav className="flex flex-col gap-0.5 text-sm">
-          <div className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-ink-muted">
-            <CheckCircleIcon className="size-4 shrink-0 text-brand" />
+          <button
+            type="button"
+            onClick={() => setScreen("Overview")}
+            className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${
+              screen === "Overview" ? "bg-[#ecfdf5] font-semibold text-brand" : "text-ink hover:bg-black/[0.02]"
+            }`}
+          >
+            {hasStarted ? (
+              <CheckCircleIcon className="size-4 shrink-0 text-brand" />
+            ) : (
+              <span className="flex size-4 shrink-0 items-center justify-center text-xs">1</span>
+            )}
             Overview
-          </div>
+          </button>
           {stepOrder.map((s, i) => {
-            const isActive = s === step;
-            const isPast = i < stepIndex;
+            const isActive = s === screen;
+            const isPast = hasStarted && i < stepIndex;
+            const isLocked = !hasStarted;
+            const isReachable =
+              isPast ||
+              isActive ||
+              (s === "AI Review" && answeredCount > 0) ||
+              (s === "Build" && answeredCount > 0);
             return (
               <button
                 key={s}
                 type="button"
-                onClick={() => (isPast || isActive) && goToStep(s)}
+                onClick={() => !isLocked && isReachable && goToStep(s)}
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${
                   isActive
                     ? "bg-[#ecfdf5] font-semibold text-brand"
-                    : isPast
+                    : isPast || isReachable
                       ? "text-ink hover:bg-black/[0.02]"
                       : "text-ink-muted/50"
                 }`}
@@ -129,32 +202,286 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
       {/* Center content */}
       <div className="min-w-0 flex-1 p-6">
-        {/* Top stepper */}
-        <div className="mb-6 flex items-center">
-          {stepOrder.map((s, i) => {
-            const isPast = i < stepIndex;
-            const isActive = s === step;
-            return (
-              <div key={s} className="flex flex-1 items-center last:flex-none">
-                <div className="flex flex-col items-center gap-1.5">
-                  <span
-                    className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${
-                      isPast || isActive ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted"
-                    }`}
-                  >
-                    {isPast ? "✓" : i + 1}
-                  </span>
-                  <span className="whitespace-nowrap text-[11px] text-ink-muted">{s}</span>
+        {screen !== "Overview" && (
+          <div className="mb-6 flex items-center">
+            {stepOrder.map((s, i) => {
+              const isPast = i < stepIndex;
+              const isActive = s === screen;
+              return (
+                <div key={s} className="flex flex-1 items-center last:flex-none">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span
+                      className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${
+                        isPast || isActive ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted"
+                      }`}
+                    >
+                      {isPast ? "✓" : i + 1}
+                    </span>
+                    <span className="whitespace-nowrap text-[11px] text-ink-muted">{s}</span>
+                  </div>
+                  {i < stepOrder.length - 1 && (
+                    <div className={`mx-1.5 h-px flex-1 ${isPast ? "bg-brand" : "bg-black/10"}`} />
+                  )}
                 </div>
-                {i < stepOrder.length - 1 && (
-                  <div className={`mx-1.5 h-px flex-1 ${isPast ? "bg-brand" : "bg-black/10"}`} />
-                )}
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
-        {step === "Engineering Plan" && (
+        {screen === "Overview" && !hasStarted && (
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-lg font-semibold text-ink">Welcome to your Engineering Workspace</h2>
+              <p className="mt-1 text-sm text-ink-muted">
+                This is where you think like a software engineer before writing code. Not a tutorial — a real
+                engineering environment.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 rounded-xl border border-black/[0.08] bg-white p-4">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-[#f2f1ee] text-ink">
+                {"</>"}
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-ink">E-Commerce Platform with Next.js 14, Stripe & PostgreSQL</p>
+              </div>
+              <div className="flex items-center gap-6 text-xs">
+                <div>
+                  <p className="text-ink-muted">DIFFICULTY</p>
+                  <p className="font-semibold text-ink">Intermediate</p>
+                </div>
+                <div>
+                  <p className="text-ink-muted">DURATION</p>
+                  <p className="font-semibold text-ink">42h 30m</p>
+                </div>
+                <div>
+                  <p className="text-ink-muted">SPRINT</p>
+                  <p className="font-semibold text-ink">{data.milestone.sprint.split("·")[0].trim()} of 3</p>
+                </div>
+                <div>
+                  <p className="text-ink-muted">EST. COMPLETION</p>
+                  <p className="font-semibold text-ink">{data.milestone.estCompletion}</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-ink">Your Engineering Journey</h3>
+              <div className="flex flex-col gap-2">
+                {journeySteps.map((j) => {
+                  const isCompleted = j.key === "Learning Hub";
+                  const isNext = j.key === "Engineering Plan";
+                  return (
+                    <div
+                      key={j.key}
+                      className={`flex items-center gap-3 rounded-lg border p-3 ${
+                        isCompleted ? "border-black/[0.08] bg-[#f6fdf9]" : isNext ? "border-black/10 bg-white" : "border-black/[0.06] bg-white opacity-60"
+                      }`}
+                    >
+                      <span
+                        className={`flex size-8 shrink-0 items-center justify-center rounded-full ${
+                          isCompleted ? "bg-brand text-white" : isNext ? "bg-[#ecfdf5] text-brand" : "bg-[#f2f1ee] text-ink-muted"
+                        }`}
+                      >
+                        {isCompleted ? <CheckCircleIcon className="size-4" /> : isNext ? <GlobeIcon className="size-4" /> : <LockIcon className="size-3.5" />}
+                      </span>
+                      <div className="flex-1">
+                        <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+                          {j.title}
+                          {j.tag && (
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                isCompleted ? "bg-emerald-100 text-emerald-700" : "bg-[#f2f1ee] text-ink-muted"
+                              }`}
+                            >
+                              {j.tag}
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-ink-muted">{j.desc}</p>
+                      </div>
+                      {!isCompleted && !isNext && <LockIcon className="size-3.5 text-ink-muted/60" />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-xl border border-black/[0.08] bg-white p-4 text-center">
+                <span className="mx-auto mb-2 flex size-8 items-center justify-center rounded-full bg-[#f2f1ee] text-ink-muted">
+                  <GlobeIcon className="size-4" />
+                </span>
+                <p className="text-sm font-semibold text-ink">Think First</p>
+                <p className="mt-1 text-xs text-ink-muted">Plan your architecture before writing a single line of code.</p>
+              </div>
+              <div className="rounded-xl border border-black/[0.08] bg-white p-4 text-center">
+                <span className="mx-auto mb-2 flex size-8 items-center justify-center rounded-full bg-[#f2f1ee] text-purple-600">
+                  <SparklesIcon className="size-4" />
+                </span>
+                <p className="text-sm font-semibold text-ink">AI Feedback</p>
+                <p className="mt-1 text-xs text-ink-muted">A senior engineer AI reviews every engineering decision you make.</p>
+              </div>
+              <div className="rounded-xl border border-black/[0.08] bg-white p-4 text-center">
+                <span className="mx-auto mb-2 flex size-8 items-center justify-center rounded-full bg-[#f2f1ee] text-ink-muted">
+                  <BranchIcon className="size-4" />
+                </span>
+                <p className="text-sm font-semibold text-ink">Ship Real Code</p>
+                <p className="mt-1 text-xs text-ink-muted">Build against a real GitHub repo with CI/CD, PRs, and deployments.</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={startEngineeringPlan}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-brand py-3 text-sm font-semibold text-white hover:bg-brand/90"
+            >
+              <GlobeIcon className="size-4" />
+              Start Engineering Plan
+              <ArrowRightIcon className="size-3.5" />
+            </button>
+            <p className="text-center text-xs text-ink-muted">This onboarding screen appears only once.</p>
+          </div>
+        )}
+
+        {screen === "Overview" && hasStarted && (
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-lg font-semibold text-ink">Welcome back, {data.userName}! 👋</h2>
+              <p className="mt-1 text-sm text-ink-muted">Continue building your E-Commerce Platform with Next.js.</p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-lg border border-black/[0.08] bg-white p-3">
+                <p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
+                  <BranchIcon className="size-3" /> Current Sprint
+                </p>
+                <p className="text-sm font-semibold text-ink">{data.returningStats.currentSprint}</p>
+                <div className="mt-1.5 h-1 w-full rounded-full bg-black/[0.08]">
+                  <div className="h-1 rounded-full bg-brand" style={{ width: "60%" }} />
+                </div>
+              </div>
+              <div className="rounded-lg border border-black/[0.08] bg-white p-3">
+                <p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
+                  <SparklesIcon className="size-3" /> Current Milestone
+                </p>
+                <p className="whitespace-pre-line text-sm font-semibold text-ink">{data.returningStats.currentMilestone}</p>
+              </div>
+              <div className="rounded-lg border border-black/[0.08] bg-white p-3">
+                <p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
+                  <CheckCircleIcon className="size-3" /> Tasks Completed
+                </p>
+                <p className="text-sm font-semibold text-ink">{data.returningStats.tasksCompleted}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#1a1410]">
+                <span className="text-2xl">🪜</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="mb-1 inline-block rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">In Progress</span>
+                <p className="text-sm font-semibold text-ink">{data.milestone.taskLabel}</p>
+                <p className="text-xs text-ink-muted">Build RESTful APIs for cart management, product catalog, and inventory validation.</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="h-1.5 flex-1 rounded-full bg-black/[0.08]">
+                    <div className="h-1.5 rounded-full bg-brand" style={{ width: `${data.milestone.progress + 30}%` }} />
+                  </div>
+                  <span className="text-xs font-semibold text-ink">{data.milestone.progress + 30}%</span>
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-col gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setScreen("Engineering Plan")}
+                  className="rounded-2xl bg-brand px-4 py-2 text-xs font-semibold text-white hover:bg-brand/90"
+                >
+                  Continue Building →
+                </button>
+                <button type="button" className="rounded-2xl border border-black/[0.08] px-4 py-2 text-xs font-semibold text-ink hover:bg-black/[0.02]">
+                  Open Workspace
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+                <p className="mb-3 text-sm font-semibold text-ink">Build Progress</p>
+                <div className="flex items-center gap-4">
+                  <div
+                    className="flex size-20 shrink-0 items-center justify-center rounded-full text-sm font-bold text-ink"
+                    style={{ background: "conic-gradient(#065f46 126deg, #e7e5e0 126deg)" }}
+                  >
+                    <span className="flex size-14 flex-col items-center justify-center rounded-full bg-white text-center text-xs">
+                      35%<span className="text-[9px] font-normal text-ink-muted">OVERALL</span>
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col gap-1 text-xs">
+                    {data.buildBreakdown.map((b) => (
+                      <div key={b.label} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-ink-muted">
+                          <span className="size-1.5 rounded-full" style={{ background: b.color }} />
+                          {b.label}
+                        </span>
+                        <span className="font-semibold text-ink">{b.percent}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <button type="button" className="mt-3 w-full rounded-2xl border border-black/[0.08] py-2 text-xs font-semibold text-ink hover:bg-black/[0.02]">
+                  View Full Progress →
+                </button>
+              </div>
+
+              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+                <p className="mb-3 text-sm font-semibold text-ink">Validation Center</p>
+                <div className="flex flex-col gap-2">
+                  {data.validationChecks.map((v) => (
+                    <div key={v.label} className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-1.5 text-ink">
+                        {v.status === "Passed" && <CheckCircleIcon className="size-3.5 text-emerald-500" />}
+                        {v.status === "Failed" && <span className="text-red-500">✕</span>}
+                        {v.status === "Pending" && <ClockIcon className="size-3.5 text-amber-500" />}
+                        {v.label}
+                      </span>
+                      <span className={`font-semibold ${v.status === "Passed" ? "text-emerald-600" : v.status === "Failed" ? "text-red-500" : "text-amber-600"}`}>
+                        {v.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" className="mt-3 w-full rounded-2xl border border-black/[0.08] py-2 text-xs font-semibold text-ink hover:bg-black/[0.02]">
+                  View All Validations →
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-semibold text-ink">GitHub Snapshot</p>
+                <button type="button" onClick={() => setScreen("GitHub Engineering")} className="text-xs font-medium text-brand">
+                  View on GitHub
+                </button>
+              </div>
+              <div className="flex flex-col gap-2 text-xs">
+                <div className="flex justify-between"><span className="text-ink-muted">Repository</span><span className="font-semibold text-ink">{data.repo.name}</span></div>
+                <div className="flex justify-between"><span className="text-ink-muted">Current Branch</span><span className="font-semibold text-ink">{data.branch.current}</span></div>
+                <div className="flex justify-between"><span className="text-ink-muted">Last Commit</span><span className="font-semibold text-ink">feat: add cart API endpoints</span></div>
+                <div className="flex justify-between"><span className="text-ink-muted">Latest Commit</span><span className="font-semibold text-ink">{data.branch.lastCommit}</span></div>
+                <div className="flex justify-between"><span className="text-ink-muted">Today&apos;s Commits</span><span className="font-semibold text-ink">8 commits</span></div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setScreen("GitHub Engineering")}
+                className="mt-3 w-full rounded-2xl border border-black/[0.08] py-2 text-xs font-semibold text-ink hover:bg-black/[0.02]"
+              >
+                Open GitHub Engineering →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {screen === "Engineering Plan" && (
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-lg font-semibold text-ink">Engineering Plan</h2>
@@ -213,24 +540,51 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
               <h3 className="mt-2 text-base font-semibold text-ink">{question.question}</h3>
               <p className="mt-1 text-sm text-ink-muted">{question.description}</p>
 
-              <div className="mt-4 rounded-lg border border-black/[0.08] p-3">
-                <p className="mb-2 text-sm font-semibold text-ink">Evaluation Criteria</p>
-                <div className="grid grid-cols-2 gap-3">
-                  {question.criteria.map((c) => (
-                    <div key={c.title} className="rounded-lg bg-[#faf9f7] p-2.5">
-                      <p className="text-xs font-semibold text-ink">{c.title}</p>
-                      <p className="text-xs text-ink-muted">{c.desc}</p>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-4 rounded-lg border border-black/[0.08]">
+                <button
+                  type="button"
+                  onClick={() => setShowCriteria((v) => !v)}
+                  className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-semibold text-ink"
+                >
+                  <span className="flex items-center gap-2">
+                    <ListIcon className="size-4 text-ink-muted" />
+                    Evaluation Criteria
+                  </span>
+                  <ChevronDownIcon className={`size-4 text-ink-muted transition-transform ${showCriteria ? "rotate-180" : ""}`} />
+                </button>
+                {showCriteria && (
+                  <div className="grid grid-cols-2 gap-3 border-t border-black/[0.06] p-3">
+                    {question.criteria.map((c) => (
+                      <div key={c.title} className="rounded-lg bg-[#faf9f7] p-2.5">
+                        <p className="text-xs font-semibold text-ink">{c.title}</p>
+                        <p className="text-xs text-ink-muted">{c.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                {question.references.map((r) => (
-                  <span key={r.label} className={`rounded-full px-2.5 py-1 text-xs font-semibold ${r.color}`}>
-                    {r.label}
+              <div className="mt-3 rounded-lg border border-black/[0.08]">
+                <button
+                  type="button"
+                  onClick={() => setShowReferences((v) => !v)}
+                  className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-semibold text-ink"
+                >
+                  <span className="flex items-center gap-2">
+                    <LibraryIcon className="size-4 text-amber-600" />
+                    Reference Materials
                   </span>
-                ))}
+                  <ChevronDownIcon className={`size-4 text-ink-muted transition-transform ${showReferences ? "rotate-180" : ""}`} />
+                </button>
+                {showReferences && (
+                  <div className="flex flex-wrap gap-2 border-t border-black/[0.06] p-3">
+                    {question.references.map((r) => (
+                      <span key={r.label} className={`rounded-full px-2.5 py-1 text-xs font-semibold ${r.color}`}>
+                        {r.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <button
@@ -248,35 +602,49 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                 </div>
                 <textarea
                   value={answers[question.id] ?? ""}
+                  readOnly={submitted[question.id]}
                   onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
                   placeholder="Walk through your technical approach in detail. Consider: data structures, algorithms, trade-offs, edge cases, and how you would handle failures..."
-                  className="h-32 w-full resize-none rounded-lg border border-black/[0.08] bg-[#faf9f7] p-3 text-sm text-ink outline-none focus:border-brand"
+                  className={`h-32 w-full resize-none rounded-lg border border-black/[0.08] p-3 text-sm text-ink outline-none focus:border-brand ${
+                    submitted[question.id] ? "bg-[#f2f1ee]" : "bg-[#faf9f7]"
+                  }`}
                 />
               </div>
 
-              <div className="mt-4 flex items-center gap-3">
+              {submitted[question.id] ? (
                 <button
                   type="button"
-                  className="flex items-center gap-1.5 rounded-2xl border border-black/[0.08] px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.02]"
+                  onClick={() => setSubmitted((prev) => ({ ...prev, [question.id]: false }))}
+                  className="mt-4 flex items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink"
                 >
-                  <EditIcon className="size-3.5" />
-                  Save Draft
+                  <RefreshIcon className="size-3.5" />
+                  Edit answer
                 </button>
-                <button
-                  type="button"
-                  disabled={!(answers[question.id] ?? "").trim()}
-                  onClick={submitForReview}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand/90 disabled:cursor-not-allowed disabled:bg-black/20"
-                >
-                  <SendIcon className="size-3.5" />
-                  Submit for AI Review
-                </button>
-              </div>
+              ) : (
+                <div className="mt-4 flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 rounded-2xl border border-black/[0.08] px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.02]"
+                  >
+                    <EditIcon className="size-3.5" />
+                    Save Draft
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!(answers[question.id] ?? "").trim()}
+                    onClick={submitForReview}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand/90 disabled:cursor-not-allowed disabled:bg-black/20"
+                  >
+                    <SendIcon className="size-3.5" />
+                    Submit for AI Review
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {step === "AI Review" && (
+        {screen === "AI Review" && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div>
@@ -291,22 +659,40 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
               </button>
             </div>
 
-            <div className="flex w-fit rounded-full border border-black/[0.08] bg-white p-1 text-sm">
+            <div className="flex w-full rounded-lg bg-[#f2f1ee] p-1 text-sm">
               <button
                 type="button"
                 onClick={() => setReviewMode("side")}
-                className={`rounded-full px-4 py-1.5 font-medium ${reviewMode === "side" ? "bg-ink text-white" : "text-ink-muted"}`}
+                className={`flex-1 rounded-md py-2 font-medium ${reviewMode === "side" ? "bg-white text-ink shadow-sm" : "text-ink-muted"}`}
               >
                 Side-By-Side Review
               </button>
               <button
                 type="button"
                 onClick={() => setReviewMode("detailed")}
-                className={`rounded-full px-4 py-1.5 font-medium ${reviewMode === "detailed" ? "bg-ink text-white" : "text-ink-muted"}`}
+                className={`flex-1 rounded-md py-2 font-medium ${reviewMode === "detailed" ? "bg-white text-ink shadow-sm" : "text-ink-muted"}`}
               >
                 Detailed Feedback
               </button>
             </div>
+
+            {reviewMode === "side" && (
+              <div className="flex flex-wrap gap-2">
+                {data.questions.map((q, i) => (
+                  <button
+                    key={q.id}
+                    type="button"
+                    onClick={() => setQIndex(i)}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
+                      i === qIndex ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted"
+                    }`}
+                  >
+                    {i + 1} Q{i + 1}
+                    {submitted[q.id] && <CheckCircleIcon className="size-3" />}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {reviewMode === "side" ? (
               <div className="grid grid-cols-2 gap-4">
@@ -318,7 +704,10 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                     </span>
                     <button type="button" className="text-xs font-medium text-ink-muted">Edit</button>
                   </div>
-                  <span className="mb-2 inline-block rounded bg-[#fffbeb] px-2 py-0.5 text-[11px] text-[#bb4d00]">Submitted</span>
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="inline-block rounded bg-[#fffbeb] px-2 py-0.5 text-[11px] font-medium text-[#bb4d00]">Submitted Jan 15</span>
+                    <span className="text-[11px] text-ink-muted">{(answers[question.id] ?? "").length} chars</span>
+                  </div>
                   <p className="text-sm text-ink-muted">{answers[question.id]}</p>
                 </div>
                 <div className="rounded-xl border border-black/[0.08] bg-white p-4">
@@ -334,7 +723,10 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                   <div className="flex flex-col gap-2">
                     {review.scores.map((s) => (
                       <div key={s.label} className="flex items-center gap-2 text-xs">
-                        <span className="w-24 shrink-0 text-ink-muted">{s.label}</span>
+                        <span className="flex w-24 shrink-0 items-center gap-1 text-ink-muted">
+                          <ScoreIcon label={s.label} />
+                          {s.label}
+                        </span>
                         <div className="h-1.5 flex-1 rounded-full bg-black/[0.08]">
                           <div className={`h-1.5 rounded-full ${scoreColor(s.value)}`} style={{ width: `${s.value}%` }} />
                         </div>
@@ -380,8 +772,12 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                     <p className="text-xs text-ink-muted">Solid fundamentals. Two key gaps to address before moving to the Build phase.</p>
                     <div className="mt-1.5 flex flex-wrap gap-2 text-xs">
                       {review.scores.map((s) => (
-                        <span key={s.label} className="rounded-full bg-[#f2f1ee] px-2 py-0.5 text-ink-muted">
-                          {s.label} {s.value}
+                        <span
+                          key={s.label}
+                          className={`flex items-center gap-1 rounded-full px-2 py-0.5 font-medium ${chipColorMap[s.label] ?? "bg-[#f2f1ee] text-ink-muted"}`}
+                        >
+                          <ScoreIcon label={s.label} />
+                          {s.label}: {s.value}
                         </span>
                       ))}
                     </div>
@@ -408,11 +804,13 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                   ))}
                 </div>
 
-                <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-red-500">Missing Concepts</p>
-                <div className="mt-1.5 flex flex-col gap-1.5 rounded-lg bg-red-50 p-3">
-                  {review.missing.map((s) => (
-                    <p key={s} className="text-xs text-red-600">✕ {s}</p>
-                  ))}
+                <div className="mt-4 rounded-lg border border-red-100 bg-red-50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-red-600">Missing Concepts</p>
+                  <div className="mt-1.5 flex flex-col gap-1">
+                    {review.missing.map((s) => (
+                      <p key={s} className="text-xs text-red-600">✕ {s}</p>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -437,13 +835,32 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
                     ))}
                   </ul>
                 </div>
+
+                <div className="mt-4 rounded-lg border border-black/[0.08] p-3">
+                  <p className="text-sm font-semibold text-ink">Ask AI Follow-up</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <input
+                      placeholder="Ask a technical follow-up question..."
+                      className="flex-1 rounded-lg border border-black/[0.08] bg-[#faf9f7] px-3 py-2 text-xs text-ink outline-none placeholder:text-ink-muted/60"
+                    />
+                    <button type="button" className="flex items-center gap-1 rounded-full bg-[#a8b5ad] px-3 py-2 text-xs font-semibold text-white">
+                      <SparklesIcon className="size-3.5" />
+                      Ask
+                    </button>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <span className="rounded-full bg-[#f2f1ee] px-2.5 py-1 text-[11px] text-ink-muted">Explain SELECT FOR UPDATE</span>
+                    <span className="rounded-full bg-[#f2f1ee] px-2.5 py-1 text-[11px] text-ink-muted">When to use Redis vs DB?</span>
+                    <span className="rounded-full bg-[#f2f1ee] px-2.5 py-1 text-[11px] text-ink-muted">Show example transaction</span>
+                  </div>
+                </div>
               </div>
             )}
 
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => setStep("Engineering Plan")}
+                onClick={() => setScreen("Engineering Plan")}
                 className="flex items-center gap-1.5 rounded-2xl border border-black/[0.08] px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.02]"
               >
                 <RefreshIcon className="size-3.5" />
@@ -467,7 +884,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           </div>
         )}
 
-        {step === "Build" && (
+        {screen === "Build" && (
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-lg font-semibold text-ink">Build</h2>
@@ -558,7 +975,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
               <button
                 type="button"
-                onClick={() => setStep("GitHub Engineering")}
+                onClick={() => setScreen("GitHub Engineering")}
                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-brand py-2.5 text-sm font-semibold text-brand hover:bg-[#ecfdf5]"
               >
                 <CheckCircleIcon className="size-4" />
@@ -568,7 +985,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           </div>
         )}
 
-        {step === "GitHub Engineering" && (
+        {screen === "GitHub Engineering" && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <GithubIcon className="size-5 text-ink" />
@@ -605,19 +1022,96 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
             </div>
 
             <div className="rounded-xl border border-black/[0.08] bg-white p-4">
-              <p className="mb-3 text-sm font-semibold text-ink">Commit Calendar</p>
-              <div className="flex h-40 items-end gap-2">
-                {data.github.commits.map((c) => (
-                  <div key={c.date} className="flex flex-1 flex-col items-center gap-1">
-                    <div
-                      className="w-full rounded-t bg-brand/70"
-                      style={{ height: `${(c.count / 42) * 100}%` }}
-                      title={`${c.date}: ${c.count} commits`}
-                    />
-                    <span className="text-[9px] text-ink-muted">{c.date}</span>
-                  </div>
+              <div className="mb-1 flex items-center justify-between">
+                <p className="text-sm font-semibold text-ink">Commit Calendar</p>
+                <span className="flex items-center gap-1.5 text-xs text-ink-muted">
+                  <ClockIcon className="size-3.5" />
+                  {data.github.commits[0].date} – {data.github.commits[data.github.commits.length - 1].date}, 2025
+                </span>
+              </div>
+              <div className="mb-4 flex w-fit rounded-full border border-black/[0.08] bg-[#faf9f7] p-1 text-xs">
+                {(["Daily", "Weekly", "Monthly"] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setChartRange(r)}
+                    className={`rounded-full px-3 py-1 font-medium ${chartRange === r ? "bg-white text-brand shadow-sm" : "text-ink-muted"}`}
+                  >
+                    {r}
+                  </button>
                 ))}
               </div>
+              {(() => {
+                const commits = data.github.commits;
+                const maxVal = 50;
+                const w = 700;
+                const h = 190;
+                const padX = 24;
+                const padTop = 10;
+                const points = commits.map((c, i) => ({
+                  x: padX + (i * (w - padX * 2)) / (commits.length - 1),
+                  y: padTop + (h - padTop) * (1 - c.count / maxVal),
+                  c,
+                }));
+                const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+                const areaPath = `${linePath} L ${points[points.length - 1].x} ${h} L ${points[0].x} ${h} Z`;
+                const hoverPoint = points.find((p) => p.c.date === hoverDate);
+                return (
+                  <div className="relative">
+                    <svg viewBox={`0 0 ${w} ${h + 24}`} className="w-full overflow-visible">
+                      {[0, 10, 20, 30, 40, 50].map((g) => {
+                        const y = padTop + (h - padTop) * (1 - g / maxVal);
+                        return (
+                          <g key={g}>
+                            <line x1={padX} x2={w - padX} y1={y} y2={y} stroke="#e7e5e0" strokeWidth={1} />
+                            <text x={0} y={y + 3} fontSize={9} fill="#8a8578">
+                              {g}
+                            </text>
+                          </g>
+                        );
+                      })}
+                      <path d={areaPath} fill="#065f46" opacity={0.08} />
+                      <path d={linePath} fill="none" stroke="#065f46" strokeWidth={2} />
+                      {points.map((p) => (
+                        <g key={p.c.date}>
+                          {/* larger invisible hit area for easier hover/click */}
+                          <circle
+                            cx={p.x}
+                            cy={p.y}
+                            r={10}
+                            fill="transparent"
+                            className="cursor-pointer"
+                            onMouseEnter={() => setHoverDate(p.c.date)}
+                            onMouseLeave={() => setHoverDate((d) => (d === p.c.date ? null : d))}
+                            onClick={() => setOpenCommitDay(p.c.date)}
+                          />
+                          <circle
+                            cx={p.x}
+                            cy={p.y}
+                            r={hoverDate === p.c.date || data.commitDetails[p.c.date] ? 4.5 : 2.5}
+                            fill="#065f46"
+                            className="pointer-events-none"
+                          />
+                        </g>
+                      ))}
+                      {points.map((p) => (
+                        <text key={`${p.c.date}-label`} x={p.x} y={h + 18} fontSize={9} fill="#8a8578" textAnchor="middle">
+                          {p.c.date}
+                        </text>
+                      ))}
+                    </svg>
+                    {hoverPoint && (
+                      <div
+                        className="pointer-events-none absolute -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-lg bg-ink px-2.5 py-1.5 text-center text-xs text-white shadow-lg"
+                        style={{ left: `${(hoverPoint.x / w) * 100}%`, top: `${(hoverPoint.y / (h + 24)) * 100}%` }}
+                      >
+                        <p className="font-semibold">{hoverPoint.c.date}, 2025</p>
+                        <p className="text-white/80">{hoverPoint.c.count} commits</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             <div>
@@ -635,7 +1129,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
             <button
               type="button"
-              onClick={() => setStep("Submit Project")}
+              onClick={() => setScreen("Submit Project")}
               className="ml-auto flex items-center gap-1.5 rounded-2xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand/90"
             >
               Continue to Submit
@@ -644,7 +1138,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           </div>
         )}
 
-        {step === "Submit Project" && (
+        {screen === "Submit Project" && (
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-lg font-semibold text-ink">Submit Project</h2>
@@ -717,7 +1211,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
 
       {/* Right context panel */}
       <aside className="flex w-[260px] shrink-0 flex-col gap-4 border-l border-black/[0.06] bg-white p-5 text-sm">
-        {step === "Engineering Plan" && (
+        {screen === "Engineering Plan" && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Question Progress</p>
             <div className="mt-2 flex flex-col gap-2 text-xs">
@@ -728,7 +1222,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
             </div>
           </div>
         )}
-        {step === "AI Review" && (
+        {screen === "AI Review" && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Review Scores</p>
             <div className="mt-2 flex flex-col gap-1.5 text-xs">
@@ -742,7 +1236,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
             </div>
           </div>
         )}
-        {step === "Build" && (
+        {screen === "Build" && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Repository Status</p>
             <div className="mt-2 flex flex-col gap-1.5 text-xs">
@@ -753,7 +1247,7 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
             </div>
           </div>
         )}
-        {step === "Submit Project" && (
+        {screen === "Submit Project" && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Submission Readiness</p>
             <div className="mt-2 flex flex-col gap-1.5 text-xs">
@@ -803,6 +1297,13 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           <p className="mt-0.5 text-xs text-purple-700">Plan auth before building any endpoint.</p>
         </div>
 
+        <div className="rounded-lg bg-sky-50 p-2.5">
+          <p className="flex items-center gap-1 text-xs font-semibold text-sky-700">
+            <CpuIcon className="size-3.5" /> PERFORMANCE
+          </p>
+          <p className="mt-0.5 text-xs text-sky-700">Add indexes as you design the schema.</p>
+        </div>
+
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Ask AI Mentor</p>
           <textarea
@@ -812,8 +1313,69 @@ export function WorkspaceTab({ unlocked, slug }: { unlocked: boolean; slug: stri
           <button type="button" className="mt-1.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a8b5ad] py-1.5 text-xs font-semibold text-white">
             <SparklesIcon className="size-3.5" /> Ask
           </button>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <span className="rounded-full bg-[#f2f1ee] px-2 py-1 text-[11px] text-ink-muted">How do I fix this?</span>
+            <span className="rounded-full bg-[#f2f1ee] px-2 py-1 text-[11px] text-ink-muted">Best practice?</span>
+            <span className="rounded-full bg-[#f2f1ee] px-2 py-1 text-[11px] text-ink-muted">Security concern?</span>
+          </div>
         </div>
       </aside>
+
+      {commitPopupData && openCommitDay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6" onClick={() => setOpenCommitDay(null)}>
+          <div
+            className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-ink">Commits on {openCommitDay}, 2025</h3>
+                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                  {commitPopupData.length} commits
+                </span>
+              </div>
+              <button type="button" onClick={() => setOpenCommitDay(null)} className="text-ink-muted hover:text-ink">
+                ✕
+              </button>
+            </div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                  <th className="pb-2 font-semibold">Commit Message</th>
+                  <th className="pb-2 font-semibold">Commit Hash</th>
+                  <th className="pb-2 text-right font-semibold">Lines Added</th>
+                  <th className="pb-2 text-right font-semibold">Lines Deleted</th>
+                </tr>
+              </thead>
+              <tbody>
+                {commitPopupData.map((c) => (
+                  <tr key={c.hash} className="border-t border-black/[0.06]">
+                    <td className="flex items-center gap-2 py-2.5 text-ink">
+                      <span className="text-ink-muted">⚡</span>
+                      {c.message}
+                    </td>
+                    <td className="py-2.5 font-mono text-xs text-ink-muted">{c.hash}</td>
+                    <td className="py-2.5 text-right font-semibold text-emerald-600">+{c.added}</td>
+                    <td className="py-2.5 text-right font-semibold text-red-500">-{c.deleted}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t border-black/[0.08] font-semibold text-ink">
+                  <td className="py-2.5">Total</td>
+                  <td />
+                  <td className="py-2.5 text-right text-emerald-600">
+                    +{commitPopupData.reduce((sum, c) => sum + c.added, 0)}
+                  </td>
+                  <td className="py-2.5 text-right text-red-500">
+                    -{commitPopupData.reduce((sum, c) => sum + c.deleted, 0)}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

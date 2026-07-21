@@ -38,7 +38,7 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f7]">
+    <div className="min-h-screen bg-white">
       <DashboardHeader />
 
       <div className="flex w-full">
