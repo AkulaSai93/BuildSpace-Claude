@@ -96,6 +96,7 @@ export default function LibraryPage() {
                     active ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink hover:bg-black/10"
                   }`}
                 >
+                  <span className={active ? "text-white" : "text-ink-muted"}>{cat.icon}</span>
                   {cat.label}
                   <span className={active ? "text-white/80" : "text-ink-muted"}>{cat.count}</span>
                 </button>
@@ -193,7 +194,7 @@ export default function LibraryPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col rounded-xl border border-black/[0.08] bg-white px-5">
+              <div className="flex flex-col gap-4">
                 {filtered.map((project) => (
                   <ProjectListRow key={project.slug} project={project} />
                 ))}

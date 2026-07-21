@@ -9,7 +9,7 @@ const levelStyles: Record<CourseLevel, string> = {
 
 export function CourseCard({ course }: { course: TrendingCourse }) {
   return (
-    <div className="flex w-full flex-col items-start overflow-hidden rounded-lg border border-black/[0.08] bg-white">
+    <div className="flex h-full w-full flex-col items-start overflow-hidden rounded-lg border border-black/[0.08] bg-white">
       <div className="relative h-[197px] w-full shrink-0 bg-stone-300">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -24,11 +24,7 @@ export function CourseCard({ course }: { course: TrendingCourse }) {
         )}
       </div>
 
-      <div className="h-1 w-full bg-black/20">
-        <div className="h-1 w-[29%] bg-brand" />
-      </div>
-
-      <div className="flex w-full flex-col items-start gap-3.5 p-5">
+      <div className="flex w-full flex-1 flex-col items-start gap-3.5 p-5">
         <div className="flex w-full flex-col gap-4">
           <div className="flex w-full flex-col gap-2.5">
             <p className="text-[13px] font-semibold leading-tight text-ink">

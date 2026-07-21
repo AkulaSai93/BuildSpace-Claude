@@ -10,7 +10,7 @@ const levelStyles: Record<ProjectSummary["level"], string> = {
 
 export function ProjectListRow({ project }: { project: ProjectSummary }) {
   return (
-    <div className="flex w-full items-center gap-5 border-b border-black/[0.06] py-[17px] first:pt-0 last:border-b-0">
+    <div className="flex w-full items-center gap-5 rounded-xl border border-black/[0.08] bg-white p-4">
       <div className="relative h-[116px] w-[176px] shrink-0 overflow-hidden rounded bg-stone-200">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

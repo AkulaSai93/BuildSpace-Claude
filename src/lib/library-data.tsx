@@ -1,16 +1,29 @@
+import type { ReactNode } from "react";
 import type { LibraryCategory, ProjectSummary } from "@/types/library";
+import {
+  BrainIcon,
+  CheckBadgeIcon,
+  CloudIcon,
+  CpuIcon,
+  LayersIcon,
+  LinkIcon,
+  MonitorIcon,
+  PhoneIcon,
+  ServerIcon,
+  ShieldIcon,
+} from "@/components/dashboard/icons";
 
-export const libraryCategories: LibraryCategory[] = [
-  { label: "All Projects", count: 248 },
-  { label: "Full Stack", count: 64 },
-  { label: "Frontend", count: 48 },
-  { label: "Backend", count: 36 },
-  { label: "AI / ML", count: 32 },
-  { label: "Mobile", count: 28 },
-  { label: "Cloud / DevOps", count: 24 },
-  { label: "Blockchain", count: 14 },
-  { label: "Cyber Security", count: 12 },
-  { label: "IoT", count: 10 },
+export const libraryCategories: (LibraryCategory & { icon: ReactNode })[] = [
+  { label: "All Projects", count: 248, icon: <CheckBadgeIcon className="size-3.5" /> },
+  { label: "Full Stack", count: 64, icon: <LayersIcon className="size-3.5" /> },
+  { label: "Frontend", count: 48, icon: <MonitorIcon className="size-3.5" /> },
+  { label: "Backend", count: 36, icon: <ServerIcon className="size-3.5" /> },
+  { label: "AI / ML", count: 32, icon: <BrainIcon className="size-3.5" /> },
+  { label: "Mobile", count: 28, icon: <PhoneIcon className="size-3.5" /> },
+  { label: "Cloud / DevOps", count: 24, icon: <CloudIcon className="size-3.5" /> },
+  { label: "Blockchain", count: 14, icon: <LinkIcon className="size-3.5" /> },
+  { label: "Cyber Security", count: 12, icon: <ShieldIcon className="size-3.5" /> },
+  { label: "IoT", count: 10, icon: <CpuIcon className="size-3.5" /> },
 ];
 
 export const technologyFilters = [

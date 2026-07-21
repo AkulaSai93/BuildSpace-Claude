@@ -283,6 +283,115 @@ export function BackIcon(props: IconProps) {
   );
 }
 
+export function CheckBadgeIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M5.3 8.2l1.8 1.8 3.6-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function LayersIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M8 1.5l6.5 3.3L8 8.1 1.5 4.8 8 1.5z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M1.5 8l6.5 3.3L14.5 8" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M1.5 11.2l6.5 3.3 6.5-3.3" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function MonitorIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <rect x="1.5" y="2.5" width="13" height="8.5" rx="1.2" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M5.5 14h5M8 11v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ServerIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <rect x="1.5" y="2" width="13" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="1.5" y="9" width="13" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="4" cy="4.5" r="0.7" fill="currentColor" />
+      <circle cx="4" cy="11.5" r="0.7" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function BrainIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path
+        d="M6 2a2 2 0 00-2 2 2 2 0 000 3.9A2.2 2.2 0 004 12a2 2 0 002 2c1 0 2-.8 2-2V4c0-1.1-.9-2-2-2z"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10 2a2 2 0 012 2 2 2 0 010 3.9A2.2 2.2 0 0112 12a2 2 0 01-2 2c-1 0-2-.8-2-2V4c0-1.1.9-2 2-2z"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function PhoneIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <rect x="4" y="1.5" width="8" height="13" rx="1.3" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M7 12.2h2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function CloudIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path
+        d="M4.5 12h7a2.5 2.5 0 000-5 3.5 3.5 0 00-6.7-1.2A3 3 0 004.5 12z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function LinkIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M6.5 9.5l3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M7 5.5l1-1a2.5 2.5 0 013.5 3.5l-1 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M9 10.5l-1 1a2.5 2.5 0 01-3.5-3.5l1-1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ShieldIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M8 1.5l5.5 2v3.6c0 3.7-2.4 6-5.5 7.4-3.1-1.4-5.5-3.7-5.5-7.4V3.5L8 1.5z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M5.7 8l1.6 1.6 3-3.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function CpuIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" {...props}>
+      <rect x="4" y="4" width="8" height="8" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="6.5" y="6.5" width="3" height="3" stroke="currentColor" strokeWidth="1" />
+      <path d="M6 1.5v2M10 1.5v2M6 12.5v2M10 12.5v2M1.5 6v2M1.5 10v2M12.5 6v2M12.5 10v2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function ForwardIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 16 16" fill="none" {...props}>

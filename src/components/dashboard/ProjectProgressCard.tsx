@@ -2,8 +2,10 @@ import type { InProgressProject } from "@/types/dashboard";
 import { PlayIcon } from "./icons";
 
 export function ProjectProgressCard({ project }: { project: InProgressProject }) {
+  const angle = Math.round((project.percentComplete / 100) * 360);
+
   return (
-    <div className="flex w-full flex-col items-start rounded-xl border border-black/[0.08] bg-white p-5">
+    <div className="flex h-full w-full flex-col items-start rounded-xl border border-black/[0.08] bg-white p-5">
       <div className="flex w-full items-center gap-3">
         <div className="relative h-[116px] w-[109px] shrink-0 overflow-hidden rounded bg-stone-200">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -20,8 +22,15 @@ export function ProjectProgressCard({ project }: { project: InProgressProject })
               <p className="text-[13px] font-semibold leading-tight text-ink">
                 {project.title}
               </p>
-              <div className="relative flex size-[42px] shrink-0 items-center justify-center rounded-full border-2 border-brand/20">
-                <span className="text-[9px] text-brand">{project.percentComplete}%</span>
+              <div
+                className="relative flex size-[42px] shrink-0 items-center justify-center rounded-full"
+                style={{
+                  background: `conic-gradient(#065f46 ${angle}deg, #e7e5e0 ${angle}deg)`,
+                }}
+              >
+                <div className="flex size-[34px] items-center justify-center rounded-full bg-white">
+                  <span className="text-[9px] font-semibold text-brand">{project.percentComplete}%</span>
+                </div>
               </div>
             </div>
             <p className="text-[11px] text-ink-muted">

@@ -55,9 +55,9 @@ export default function DashboardPage() {
               View all
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 items-stretch gap-6">
             {inProgressProjects.map((project) => (
-              <Link key={project.id} href={`/library/${project.id}`}>
+              <Link key={project.id} href={`/library/${project.id}`} className="flex h-full">
                 <ProjectProgressCard project={project} />
               </Link>
             ))}
@@ -79,9 +79,9 @@ export default function DashboardPage() {
               <ArrowRightIcon className="size-3" />
             </Link>
           </div>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 items-stretch gap-6">
             {trendingCourses.map((course) => (
-              <Link key={course.id} href={`/library/${course.id}`}>
+              <Link key={course.id} href={`/library/${course.id}`} className="flex h-full">
                 <CourseCard course={course} />
               </Link>
             ))}
