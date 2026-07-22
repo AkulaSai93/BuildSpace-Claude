@@ -74,103 +74,109 @@ export default function ProjectDetailPage() {
     <div className="min-h-screen bg-white">
       <DashboardHeader />
 
+      {/* Header block (breadcrumb, title, badges, tags, phase chips) is always
+          full-width and lives outside the sidebar flex row below, so it never
+          shifts or gets squeezed when the flanking sidebars appear for
+          non-Learning-Hub/Workspace tabs (e.g. switching to Phase 2). */}
+      <div className="px-8 pt-5">
+        <div className="mb-4 flex items-center gap-2 text-sm text-ink-muted">
+          <Link href="/library" className="hover:text-ink">
+            Library
+          </Link>
+          <span>/</span>
+          <span>{project.category}</span>
+          <span>/</span>
+          <span className="truncate text-ink">{project.title}</span>
+        </div>
+
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-ink">{project.title}</h1>
+            <p className="mt-2 max-w-[724px] text-sm leading-relaxed text-ink-muted">
+              {project.shortDescription}
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <button
+              type="button"
+              aria-label="Save"
+              className="flex size-[34px] items-center justify-center rounded-xl border border-black/10 text-ink-muted hover:bg-black/[0.02]"
+            >
+              <BookmarkIcon className="size-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Share"
+              className="flex size-[34px] items-center justify-center rounded-xl border border-black/10 text-ink-muted hover:bg-black/[0.02]"
+            >
+              <ShareIcon className="size-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
+          <span className="rounded-[14px] bg-[#fffbeb] px-2.5 py-1 text-xs font-medium text-[#bb4d00]">
+            {project.level}
+          </span>
+          <span className="flex items-center gap-1 text-ink-muted">
+            <StarIcon className="size-3.5 text-amber-500" />
+            <span className="font-semibold text-ink">{project.rating}</span> ({project.reviewCount.toLocaleString()})
+          </span>
+          <span className="flex items-center gap-1.5 text-ink-muted">{project.learners} students</span>
+          <span className="flex items-center gap-1.5 text-ink-muted">
+            <ClockIcon className="size-3.5" />
+            {project.duration}
+          </span>
+          <span className="flex items-center gap-1.5 text-ink-muted">
+            <VideoIcon className="size-3.5" />
+            {project.videoCount} videos
+          </span>
+          <span className="text-ink-muted">Updated Dec 2024</span>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {project.tags.map((tag) => (
+            <span key={tag} className="rounded-[14px] bg-[#f2f1ee] px-2.5 py-1 text-xs font-medium text-ink/70">
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-6 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={goToPhase1}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
+              activePhase === "phase1" ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted hover:text-ink"
+            }`}
+          >
+            Phase 1
+          </button>
+          <button
+            type="button"
+            onClick={goToPhase2}
+            disabled={!projectSubmitted}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
+              activePhase === "phase2"
+                ? "bg-brand text-white"
+                : projectSubmitted
+                  ? "bg-[#f2f1ee] text-ink-muted hover:text-ink"
+                  : "cursor-not-allowed bg-[#f2f1ee] text-ink-muted/50"
+            }`}
+          >
+            {!projectSubmitted && <LockIcon className="size-3.5" />}
+            Phase 2
+          </button>
+          {!projectSubmitted && (
+            <span className="text-xs text-ink-muted">Complete Phase 1 and submit your project to unlock Phase 2</span>
+          )}
+        </div>
+      </div>
+
       <div className="flex w-full">
         {activeTab !== "Learning Hub" && activeTab !== "Workspace" && !isLockedPreSubmitTab && <BuildJourneySidebar />}
 
         <main className="min-w-0 flex-1 px-8 py-5">
-          <div className="mb-4 flex items-center gap-2 text-sm text-ink-muted">
-            <Link href="/library" className="hover:text-ink">
-              Library
-            </Link>
-            <span>/</span>
-            <span>{project.category}</span>
-            <span>/</span>
-            <span className="truncate text-ink">{project.title}</span>
-          </div>
-
-          <div className="flex items-start justify-between gap-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-ink">{project.title}</h1>
-              <p className="mt-2 max-w-[724px] text-sm leading-relaxed text-ink-muted">
-                {project.shortDescription}
-              </p>
-            </div>
-            <div className="flex shrink-0 gap-2">
-              <button
-                type="button"
-                aria-label="Save"
-                className="flex size-[34px] items-center justify-center rounded-xl border border-black/10 text-ink-muted hover:bg-black/[0.02]"
-              >
-                <BookmarkIcon className="size-4" />
-              </button>
-              <button
-                type="button"
-                aria-label="Share"
-                className="flex size-[34px] items-center justify-center rounded-xl border border-black/10 text-ink-muted hover:bg-black/[0.02]"
-              >
-                <ShareIcon className="size-4" />
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
-            <span className="rounded-[14px] bg-[#fffbeb] px-2.5 py-1 text-xs font-medium text-[#bb4d00]">
-              {project.level}
-            </span>
-            <span className="flex items-center gap-1 text-ink-muted">
-              <StarIcon className="size-3.5 text-amber-500" />
-              <span className="font-semibold text-ink">{project.rating}</span> ({project.reviewCount.toLocaleString()})
-            </span>
-            <span className="flex items-center gap-1.5 text-ink-muted">{project.learners} students</span>
-            <span className="flex items-center gap-1.5 text-ink-muted">
-              <ClockIcon className="size-3.5" />
-              {project.duration}
-            </span>
-            <span className="flex items-center gap-1.5 text-ink-muted">
-              <VideoIcon className="size-3.5" />
-              {project.videoCount} videos
-            </span>
-            <span className="text-ink-muted">Updated Dec 2024</span>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {project.tags.map((tag) => (
-              <span key={tag} className="rounded-[14px] bg-[#f2f1ee] px-2.5 py-1 text-xs font-medium text-ink/70">
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-6 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={goToPhase1}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
-                activePhase === "phase1" ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted hover:text-ink"
-              }`}
-            >
-              Phase 1
-            </button>
-            <button
-              type="button"
-              onClick={goToPhase2}
-              disabled={!projectSubmitted}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
-                activePhase === "phase2"
-                  ? "bg-brand text-white"
-                  : projectSubmitted
-                    ? "bg-[#f2f1ee] text-ink-muted hover:text-ink"
-                    : "cursor-not-allowed bg-[#f2f1ee] text-ink-muted/50"
-              }`}
-            >
-              {!projectSubmitted && <LockIcon className="size-3.5" />}
-              Phase 2
-            </button>
-            {!projectSubmitted && (
-              <span className="text-xs text-ink-muted">Complete Phase 1 and submit your project to unlock Phase 2</span>
-            )}
-          </div>
-
           {showsVideoLayout && (
             <>
               <div className="mt-6 overflow-hidden rounded-xl border border-black/[0.08] bg-black">
