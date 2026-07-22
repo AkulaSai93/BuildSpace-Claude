@@ -30,7 +30,7 @@ export function ProjectsCarousel() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-brand">Build real projects</p>
-            <h2 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">
+            <h2 className="mt-1 font-serif text-2xl font-medium text-ink sm:text-3xl">
               Build in-demand projects
               <br />
               and create your portfolio

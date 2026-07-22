@@ -18,7 +18,7 @@ export function AIFeatures() {
         <Reveal direction="right">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-brand">Built with AI</p>
-            <h2 className="mt-1 text-2xl font-bold text-ink">Your AI engineer at every step</h2>
+            <h2 className="mt-1 font-serif text-2xl font-medium text-ink">Your AI engineer at every step</h2>
             <p className="mt-3 text-sm text-ink-muted">
               BuildSpace AI assists you throughout your journey. Write better code, fix bugs, generate
               documentation and ship faster.

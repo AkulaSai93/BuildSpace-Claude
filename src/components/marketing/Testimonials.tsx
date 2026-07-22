@@ -35,7 +35,7 @@ export function Testimonials() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-brand">Loved by builders</p>
-            <h2 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">
+            <h2 className="mt-1 font-serif text-2xl font-medium text-ink sm:text-3xl">
               See what our
               <br />
               community says

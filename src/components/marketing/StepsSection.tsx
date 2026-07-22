@@ -13,7 +13,7 @@ export function StepsSection() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-14 text-center">
       <Reveal direction="up">
-        <h2 className="text-2xl font-bold text-ink sm:text-3xl">From learning to shipping in 5 simple steps</h2>
+        <h2 className="font-serif text-2xl font-medium text-ink sm:text-3xl">From learning to shipping in 5 simple steps</h2>
       </Reveal>
 
       <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-5">

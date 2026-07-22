@@ -8,7 +8,7 @@ export function CTABand() {
       <Reveal direction="scale" duration={800}>
         <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-brand px-8 py-8 text-center sm:flex-row sm:text-left">
           <div>
-            <h2 className="text-xl font-bold text-white sm:text-2xl">
+            <h2 className="font-serif text-xl font-medium text-white sm:text-2xl">
               Ready to build <span className="text-emerald-300">the future?</span>
             </h2>
             <p className="mt-1 text-sm text-white/80">Join thousands of students building, learning and growing together.</p>

@@ -55,7 +55,7 @@ export function Hero() {
           const { isTablet, isMobile } = context.conditions as { isTablet: boolean; isMobile: boolean };
 
           const distance = isMobile ? 0.5 : isTablet ? 0.72 : 1;
-          const endDistance = isMobile ? "+=160%" : isTablet ? "+=220%" : "+=260%";
+          const endDistance = isMobile ? "+=90%" : isTablet ? "+=130%" : "+=160%";
 
           let completed = false;
 
@@ -65,7 +65,7 @@ export function Hero() {
               trigger: sectionRef.current,
               start: "top top",
               end: endDistance,
-              scrub: 0.6,
+              scrub: 0.45,
               pin: true,
               anticipatePin: 1,
               onUpdate: (self) => {

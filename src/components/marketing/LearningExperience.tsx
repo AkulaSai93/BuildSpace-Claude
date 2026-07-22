@@ -35,7 +35,7 @@ export function LearningExperience() {
         <div>
           <Reveal direction="left">
             <p className="text-xs font-semibold uppercase tracking-wide text-brand">Designed for effective learning</p>
-            <h2 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">
+            <h2 className="mt-1 font-serif text-2xl font-medium text-ink sm:text-3xl">
               A learning experience
               <br />
               you&apos;ll love
