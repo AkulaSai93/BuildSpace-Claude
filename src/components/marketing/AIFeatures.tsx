@@ -13,41 +13,52 @@ const features = [
 
 export function AIFeatures() {
   return (
-    <section id="features" className="mx-auto max-w-7xl px-6 py-8">
-      <div className="grid grid-cols-1 gap-6 rounded-2xl border border-black/[0.08] bg-[#faf9f7] p-8 lg:grid-cols-[minmax(0,280px)_1fr]">
-        <Reveal direction="right">
+    <section id="features" className="border-y border-black/[0.06] bg-white py-16">
+      <div className="mx-auto max-w-7xl px-6">
+        <Reveal direction="up">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-brand">Built with AI</p>
-            <h2 className="mt-1 font-serif text-2xl font-medium text-ink">Your AI engineer at every step</h2>
-            <p className="mt-3 text-sm text-ink-muted">
-              BuildSpace AI assists you throughout your journey. Write better code, fix bugs, generate
+            <h2 className="mt-1 whitespace-nowrap font-serif text-xl font-medium text-ink sm:text-2xl lg:text-3xl">
+              Your AI engineer at every step
+            </h2>
+            <p className="mt-3 max-w-lg text-sm text-ink-muted">
+              BuildSpace AI assists you throughout your journey — write better code, fix bugs, generate
               documentation and ship faster.
             </p>
+          </div>
+        </Reveal>
+
+        <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-2xl border border-black/[0.06] sm:grid-cols-3">
+          {features.map((f, i) => (
+            <Reveal key={f.title} direction="up" delay={i * 70}>
+              <div
+                className={`flex items-start gap-3 border-black/[0.06] p-6 ${i > 0 ? "border-t" : ""} ${
+                  i > 0 && i < 3 ? "sm:border-t-0" : ""
+                } ${i % 3 !== 2 ? "sm:border-r" : ""}`}
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#ecfdf5] text-brand">
+                  <f.icon className="size-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-ink">{f.title}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-ink-muted">{f.desc}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal direction="up" delay={120}>
+          <div className="mt-8 flex justify-center">
             <Link
               href="/dashboard"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.02]"
+              className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.02]"
             >
               Explore AI Features
               <ArrowRightIcon className="size-3.5" />
             </Link>
           </div>
         </Reveal>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {features.map((f, i) => (
-            <Reveal key={f.title} direction="up" delay={i * 80}>
-              <div className="flex items-start gap-3 rounded-xl border border-black/[0.06] bg-white p-4">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#ecfdf5] text-brand">
-                  <f.icon className="size-4" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-ink">{f.title}</p>
-                  <p className="mt-0.5 text-xs text-ink-muted">{f.desc}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
       </div>
     </section>
   );

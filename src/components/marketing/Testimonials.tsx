@@ -23,6 +23,12 @@ const testimonials = [
     title: "CS Graduate",
     color: "bg-purple-100 text-purple-700",
   },
+  {
+    quote: "The AI code review caught issues I would've missed for weeks. It's like pairing with a senior engineer 24/7.",
+    name: "Priya Nair",
+    title: "Backend Engineer",
+    color: "bg-amber-100 text-amber-700",
+  },
 ];
 
 export function Testimonials() {
@@ -35,10 +41,8 @@ export function Testimonials() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-brand">Loved by builders</p>
-            <h2 className="mt-1 font-serif text-2xl font-medium text-ink sm:text-3xl">
-              See what our
-              <br />
-              community says
+            <h2 className="mt-1 whitespace-nowrap font-serif text-xl font-medium text-ink sm:text-2xl lg:text-3xl">
+              See what our community says
             </h2>
           </div>
           <div className="hidden items-center gap-2 sm:flex">

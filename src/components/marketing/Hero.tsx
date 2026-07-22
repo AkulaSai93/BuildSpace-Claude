@@ -11,7 +11,6 @@ import {
   CheckCircleIcon,
   LogoIcon,
   PlayIcon,
-  SparklesIcon,
   ZapIcon,
 } from "@/components/dashboard/icons";
 import { Reveal } from "@/components/marketing/Reveal";
@@ -129,20 +128,27 @@ export function Hero() {
 
   return (
     <section ref={sectionRef} className="mesh-gradient relative h-screen w-full overflow-hidden">
+      {/* Faint grid overlay to keep the gradient background feeling structured, not flat */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.45]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(0,0,0,0.09) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.09) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+          maskImage: "radial-gradient(ellipse 65% 60% at 50% 35%, black 30%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 65% 60% at 50% 35%, black 30%, transparent 100%)",
+        }}
+      />
+
       <div className="relative mx-auto flex h-full max-w-4xl flex-col items-center justify-center px-6 pb-6 pt-20 text-center">
         <div ref={textRef}>
-          <Reveal direction="up" duration={600}>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.06] bg-white/70 px-3.5 py-1.5 text-xs font-semibold text-brand shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur">
-              <SparklesIcon className="size-3.5" />
-              AI-Powered Learning Platform
-            </span>
-          </Reveal>
-
           <Reveal direction="up" delay={90} duration={700}>
             <h1 className="mt-6 font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-6xl">
               The AI-powered platform
               <br />
-              to learn, build and ship
+              to <span className="text-brand">learn</span>, <span className="text-brand">build</span> and{" "}
+              <span className="text-brand">ship</span>
             </h1>
           </Reveal>
 
