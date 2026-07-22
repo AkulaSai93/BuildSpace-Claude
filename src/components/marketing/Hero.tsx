@@ -1,190 +1,272 @@
-import Link from "next/link";
-import { ArrowRightIcon, CheckCircleIcon, LogoIcon, SparklesIcon, StarIcon } from "@/components/dashboard/icons";
+"use client";
 
-const avatarColors = [
-  "bg-emerald-200 text-emerald-800",
-  "bg-sky-200 text-sky-800",
-  "bg-purple-200 text-purple-800",
-  "bg-amber-200 text-amber-800",
-];
+import { useLayoutEffect, useRef } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+import {
+  ArrowRightIcon,
+  BranchIcon,
+  CheckCircleIcon,
+  LogoIcon,
+  PlayIcon,
+  SparklesIcon,
+  ZapIcon,
+} from "@/components/dashboard/icons";
+import { Reveal } from "@/components/marketing/Reveal";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function Hero() {
-  return (
-    <section className="relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-[-12rem] size-[42rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(6,95,70,0.12),transparent)]" />
-        <div className="absolute -right-24 top-24 size-72 rounded-full bg-[radial-gradient(closest-side,rgba(6,95,70,0.08),transparent)]" />
-        <div
-          className="absolute inset-0 opacity-[0.3]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-            maskImage: "radial-gradient(ellipse 70% 60% at 50% 0%, black 40%, transparent 100%)",
-          }}
-        />
-      </div>
+  const sectionRef = useRef<HTMLElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const aiReviewRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const codeRef = useRef<HTMLDivElement>(null);
+  const assistantRef = useRef<HTMLDivElement>(null);
 
-      <div className="mx-auto max-w-7xl px-6 pb-20 pt-16">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-10">
-          <div>
-            <span
-              className="inline-flex animate-fade-in-up items-center gap-1.5 rounded-full border border-brand/20 bg-white px-3 py-1.5 text-xs font-semibold text-brand"
-              style={{ animationDelay: "0ms" }}
-            >
+  useLayoutEffect(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const cards = [dashboardRef.current, aiReviewRef.current, progressRef.current, codeRef.current, assistantRef.current];
+
+    if (prefersReduced) {
+      // Skip the assembly entirely: show the finished composition instantly, no pin.
+      gsap.set(cards, { opacity: 1, x: 0, y: 0, rotate: 0, scale: 1, clearProps: "willChange" });
+      gsap.set(textRef.current, { scale: 1, opacity: 1, y: 0 });
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          isDesktop: "(min-width: 1024px)",
+          isTablet: "(min-width: 768px) and (max-width: 1023px)",
+          isMobile: "(max-width: 767px)",
+        },
+        (context) => {
+          const { isTablet, isMobile } = context.conditions as { isTablet: boolean; isMobile: boolean };
+
+          const distance = isMobile ? 0.5 : isTablet ? 0.72 : 1;
+          const endDistance = isMobile ? "+=160%" : isTablet ? "+=220%" : "+=260%";
+
+          let completed = false;
+
+          const tl = gsap.timeline({
+            defaults: { ease: "power3.out" },
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              end: endDistance,
+              scrub: 0.6,
+              pin: true,
+              anticipatePin: 1,
+              onUpdate: (self) => {
+                // Once fully assembled, lock it — scrolling back up must never
+                // re-scatter the composition. Only a full refresh replays it.
+                if (completed && self.progress < 1) {
+                  tl.progress(1);
+                }
+              },
+              onLeave: () => {
+                completed = true;
+                tl.progress(1);
+              },
+              onEnterBack: () => {
+                if (completed) tl.progress(1);
+              },
+            },
+          });
+
+          // The text block gently compresses to make room as the cards arrive.
+          tl.to(textRef.current, { scale: 0.94, opacity: 0.88, y: -10, duration: 0.4 }, 0);
+
+          tl.fromTo(
+            dashboardRef.current,
+            { opacity: 0, scale: 0.7, y: 140 * distance, rotate: -6 },
+            { opacity: 1, scale: 1, y: 0, rotate: 0, duration: 0.5 },
+            0.05
+          )
+            .fromTo(
+              aiReviewRef.current,
+              { opacity: 0, x: -150 * distance, y: 60 * distance, rotate: 8 },
+              { opacity: 1, x: 0, y: 0, rotate: 0, duration: 0.4 },
+              0.35
+            )
+            .fromTo(
+              progressRef.current,
+              { opacity: 0, x: 150 * distance, y: 60 * distance, rotate: -8 },
+              { opacity: 1, x: 0, y: 0, rotate: 0, duration: 0.4 },
+              0.5
+            )
+            .fromTo(
+              codeRef.current,
+              { opacity: 0, y: -110 * distance, scale: 0.8 },
+              { opacity: 1, y: 0, scale: 1, duration: 0.4 },
+              0.65
+            )
+            .fromTo(
+              assistantRef.current,
+              { opacity: 0, scale: 0.6, y: 90 * distance },
+              { opacity: 1, scale: 1, y: 0, duration: 0.4 },
+              0.8
+            )
+            .to(stageRef.current, { scale: 1.02, duration: 0.05 }, 0.95)
+            .to(stageRef.current, { scale: 1, duration: 0.08, ease: "back.out(2)" }, 1.0);
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section ref={sectionRef} className="mesh-gradient relative h-screen w-full overflow-hidden">
+      <div className="relative mx-auto flex h-full max-w-4xl flex-col items-center justify-center px-6 pb-6 pt-20 text-center">
+        <div ref={textRef}>
+          <Reveal direction="up" duration={600}>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.06] bg-white/70 px-3.5 py-1.5 text-xs font-semibold text-brand shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur">
               <SparklesIcon className="size-3.5" />
               AI-Powered Learning Platform
             </span>
+          </Reveal>
 
-            <h1
-              className="mt-5 animate-fade-in-up text-4xl font-bold leading-[1.08] tracking-tight text-ink sm:text-[3.25rem]"
-              style={{ animationDelay: "80ms" }}
-            >
-              The AI-powered platform to{" "}
-              <span className="bg-gradient-to-r from-brand to-emerald-500 bg-clip-text text-transparent">learn,</span>
+          <Reveal direction="up" delay={90} duration={700}>
+            <h1 className="mt-6 font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-6xl">
+              The AI-powered platform
               <br />
-              <span className="bg-gradient-to-r from-brand to-emerald-500 bg-clip-text text-transparent">build</span>{" "}
-              and{" "}
-              <span className="bg-gradient-to-r from-brand to-emerald-500 bg-clip-text text-transparent">ship</span>{" "}
-              real
-              <br />
-              software.
+              to learn, build and ship
             </h1>
+          </Reveal>
 
-            <p
-              className="mt-5 max-w-md animate-fade-in-up text-base leading-relaxed text-ink-muted"
-              style={{ animationDelay: "160ms" }}
-            >
-              BuildSpace helps students and early engineers go from learning to building production-ready
-              projects with AI by their side.
+          <Reveal direction="up" delay={170} duration={700}>
+            <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-muted">
+              Hands-on projects. AI code review. Real engineering practice.
+              <br />
+              Go from learning to shipping production-ready software.
             </p>
+          </Reveal>
 
-            <div className="mt-8 flex animate-fade-in-up flex-wrap items-center gap-3" style={{ animationDelay: "240ms" }}>
-              <Link
-                href="/dashboard"
-                className="group flex items-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-brand/90"
-              >
-                Start Building for Free
-                <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                href="#projects"
-                className="rounded-full border border-black/[0.1] bg-white px-6 py-3.5 text-sm font-semibold text-ink transition-colors hover:border-black/[0.16] hover:bg-black/[0.02]"
-              >
-                Explore Projects
-              </Link>
+          <Reveal direction="up" delay={260} duration={700}>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
+                <Link
+                  href="/dashboard"
+                  className="group flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-ink/90"
+                >
+                  Start Building for Free
+                  <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
+                <Link
+                  href="#projects"
+                  className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/80 px-6 py-3.5 text-sm font-semibold text-ink backdrop-blur transition-colors hover:bg-white"
+                >
+                  <PlayIcon className="size-3.5" />
+                  Watch Demo
+                </Link>
+              </motion.div>
             </div>
+          </Reveal>
+        </div>
 
-            <div
-              className="mt-6 flex animate-fade-in-up flex-wrap items-center gap-4 text-xs text-ink-muted"
-              style={{ animationDelay: "300ms" }}
-            >
-              {["No credit card required", "Free forever plan", "Cancel anytime"].map((t) => (
-                <span key={t} className="flex items-center gap-1.5">
-                  <CheckCircleIcon className="size-3.5 text-brand" />
-                  {t}
+        {/* Assembling BuildSpace visual — converges as the section stays pinned */}
+        <div
+          ref={stageRef}
+          role="img"
+          aria-label="BuildSpace product preview: dashboard, AI code review, build progress, and AI assistant coming together"
+          className="relative mt-10 h-[220px] w-full max-w-[640px] sm:h-[260px]"
+        >
+          <div
+            ref={dashboardRef}
+            aria-hidden="true"
+            className="absolute left-1/2 top-1/2 w-[64%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-[0_20px_50px_-24px_rgba(0,0,0,0.18)]"
+          >
+            <div className="flex items-center gap-1.5 border-b border-black/[0.06] bg-[#faf9f7]/60 px-4 py-2.5">
+              <span className="size-2.5 rounded-full bg-red-300" />
+              <span className="size-2.5 rounded-full bg-amber-300" />
+              <span className="size-2.5 rounded-full bg-emerald-300" />
+            </div>
+            <div className="p-4 text-left">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="flex size-5 items-center justify-center rounded bg-brand text-white">
+                  <LogoIcon className="size-3" />
                 </span>
-              ))}
-            </div>
-
-            <div
-              className="mt-7 flex animate-fade-in-up items-center gap-3 border-t border-black/[0.06] pt-6"
-              style={{ animationDelay: "360ms" }}
-            >
-              <div className="flex -space-x-2.5">
-                {avatarColors.map((c, i) => (
-                  <span
-                    key={i}
-                    className={`flex size-8 items-center justify-center rounded-full border-2 border-[#faf9f7] text-[11px] font-semibold ${c}`}
-                  >
-                    {String.fromCharCode(65 + i)}
-                  </span>
-                ))}
+                <span className="text-xs font-semibold text-ink">BuildSpace Dashboard</span>
               </div>
-              <div className="text-xs text-ink-muted">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <StarIcon key={i} className="size-3 text-amber-500" />
-                  ))}
-                  <span className="ml-1 font-semibold text-ink">4.9/5</span>
-                </div>
-                Loved by 10,000+ builders
+              <div className="grid grid-cols-3 gap-2">
+                {["Active Builds", "Time Invested", "Tasks Done"].map((label, i) => (
+                  <div key={label} className="rounded-lg border border-black/[0.06] bg-[#faf9f7] p-2 text-center">
+                    <p className="text-sm font-bold text-ink">{[3, "47h", 28][i]}</p>
+                    <p className="text-[9px] leading-tight text-ink-muted">{label}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          <div className="relative animate-fade-in-up" style={{ animationDelay: "160ms" }}>
-            <div className="rounded-2xl border border-black/[0.08] bg-gradient-to-br from-[#f6fdf9] to-[#faf9f7] p-3">
-              <div className="overflow-hidden rounded-xl border border-black/[0.06] bg-white">
-                <div className="flex items-center gap-1.5 border-b border-black/[0.06] bg-[#faf9f7]/60 px-4 py-2.5">
-                  <span className="size-2.5 rounded-full bg-red-300" />
-                  <span className="size-2.5 rounded-full bg-amber-300" />
-                  <span className="size-2.5 rounded-full bg-emerald-300" />
-                </div>
-                <div className="p-4">
-                  <div className="mb-3 flex items-center gap-2 border-b border-black/[0.06] pb-3">
-                    <span className="flex size-5 items-center justify-center rounded bg-brand text-white">
-                      <LogoIcon className="size-3" />
-                    </span>
-                    <span className="text-xs font-semibold text-ink">BuildSpace</span>
-                    <span className="ml-auto flex items-center gap-1 rounded-full bg-[#ecfdf5] px-2 py-0.5 text-[10px] font-semibold text-brand">
-                      Explore Library
-                    </span>
-                  </div>
-                  <p className="text-sm font-semibold text-ink">Good morning, Sai 👋</p>
-                  <p className="text-xs text-ink-muted">Ready to keep building today?</p>
-                  <div className="mt-3 grid grid-cols-4 gap-2">
-                    {[
-                      { value: "3", label: "Active Builds" },
-                      { value: "47h", label: "Time Invested" },
-                      { value: "28", label: "Tasks Done" },
-                      { value: "12", label: "Discussions" },
-                    ].map((s) => (
-                      <div key={s.label} className="rounded-lg border border-black/[0.06] bg-[#faf9f7] p-2 text-center">
-                        <p className="text-sm font-bold text-ink">{s.value}</p>
-                        <p className="text-[9px] leading-tight text-ink-muted">{s.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-[11px] font-semibold text-ink">Continue Building</p>
-                  <div className="mt-1.5 grid grid-cols-2 gap-2">
-                    <div className="flex items-center gap-2 rounded-lg border border-black/[0.06] bg-[#faf9f7] p-2">
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded bg-[#ecfdf5] text-brand">◧</span>
-                      <p className="text-[10px] font-medium leading-tight text-ink">
-                        E-Commerce Platform with Next.js 14, Stripe &amp; PostgreSQL
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 rounded-lg border border-black/[0.06] bg-[#faf9f7] p-2">
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded bg-purple-50 text-purple-600">◨</span>
-                      <p className="text-[10px] font-medium leading-tight text-ink">
-                        Real-Time Chat App with Socket.io, Redis &amp; React
-                      </p>
-                    </div>
-                  </div>
-                  <p className="mt-3 text-[11px] font-semibold text-ink">Trending This Week</p>
-                  <div className="mt-1.5 grid grid-cols-3 gap-2">
-                    {["#1a1410", "#e7e5e0", "#0a0f1a"].map((bg, i) => (
-                      <div key={i} className="h-10 rounded-lg" style={{ background: bg }} />
-                    ))}
-                  </div>
-                </div>
-              </div>
+          <div
+            ref={aiReviewRef}
+            aria-hidden="true"
+            className="absolute -bottom-3 left-0 hidden items-center gap-2 rounded-2xl border border-black/[0.08] bg-white px-3.5 py-2.5 shadow-[0_16px_36px_-20px_rgba(0,0,0,0.16)] sm:flex"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#ecfdf5] text-brand">
+              <CheckCircleIcon className="size-4" />
+            </span>
+            <div className="text-left">
+              <p className="text-[11px] font-semibold leading-tight text-ink">AI Review Passed</p>
+              <p className="text-[10px] text-ink-muted">Score: 94/100</p>
             </div>
+          </div>
 
-            <div className="absolute -bottom-5 -left-5 hidden items-center gap-2 rounded-2xl border border-black/[0.08] bg-white px-3.5 py-2.5 sm:flex">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#ecfdf5] text-brand">
-                <CheckCircleIcon className="size-4" />
-              </span>
-              <div>
-                <p className="text-[11px] font-semibold leading-tight text-ink">AI Review Passed</p>
-                <p className="text-[10px] text-ink-muted">Score: 94/100</p>
-              </div>
+          <div
+            ref={progressRef}
+            aria-hidden="true"
+            className="absolute -bottom-3 right-0 hidden w-[38%] rounded-2xl border border-black/[0.08] bg-white px-3.5 py-3 shadow-[0_16px_36px_-20px_rgba(0,0,0,0.16)] sm:block"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-ink">Build Progress</p>
+              <span className="text-[10px] font-semibold text-brand">82%</span>
             </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#f2f1ee]">
+              <div className="h-full w-[82%] rounded-full bg-brand" />
+            </div>
+          </div>
 
-            <div className="absolute -right-4 -top-4 hidden size-14 rotate-6 items-center justify-center rounded-2xl bg-brand text-lg font-semibold text-white sm:flex">
-              {"</>"}
+          <div
+            ref={codeRef}
+            aria-hidden="true"
+            className="absolute -top-3 left-2 hidden items-center gap-2 rounded-2xl border border-black/[0.08] bg-white px-3.5 py-2.5 shadow-[0_16px_36px_-20px_rgba(0,0,0,0.16)] md:flex"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f2f1ee] text-ink">
+              <BranchIcon className="size-4" />
+            </span>
+            <div className="text-left">
+              <p className="text-[11px] font-semibold leading-tight text-ink">12 commits pushed</p>
+              <p className="text-[10px] text-ink-muted">feature/ai-review · 2h ago</p>
             </div>
+          </div>
+
+          <div
+            ref={assistantRef}
+            aria-hidden="true"
+            className="absolute -top-3 right-2 hidden items-center gap-2 rounded-2xl bg-brand px-3.5 py-2.5 text-white shadow-[0_16px_36px_-20px_rgba(6,95,70,0.35)] md:flex"
+          >
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/15">
+              <ZapIcon className="size-3.5" />
+            </span>
+            <p className="text-[11px] font-semibold leading-tight">
+              Great work —<br />
+              ready to ship?
+            </p>
           </div>
         </div>
       </div>

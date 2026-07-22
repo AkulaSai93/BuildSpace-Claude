@@ -12,7 +12,9 @@
   "dependencies": {
     "next": "^15.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "gsap": "^3.12.5",
+    "framer-motion": "^11.11.17"
   },
   "devDependencies": {
     "typescript": "^5.5.0",

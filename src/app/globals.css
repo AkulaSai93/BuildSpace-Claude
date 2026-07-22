@@ -9,3 +9,29 @@ html {
 ::selection {
   background: rgba(6, 95, 70, 0.15);
 }
+
+/*
+ * Premium mesh-gradient background used behind hero-style sections.
+ * Built from muted, brand-tinted color stops (not saturated purple/blue
+ * defaults) plus a very faint SVG-noise overlay, so it reads as a designed
+ * surface rather than a flat generated gradient.
+ */
+.mesh-gradient {
+  position: relative;
+  background-color: #faf9f7;
+  background-image:
+    radial-gradient(38% 55% at 14% 20%, rgba(6, 95, 70, 0.14), transparent 65%),
+    radial-gradient(42% 60% at 85% 12%, rgba(180, 150, 255, 0.16), transparent 60%),
+    radial-gradient(50% 65% at 50% 100%, rgba(255, 196, 140, 0.14), transparent 65%),
+    linear-gradient(180deg, #fbf9f6 0%, #f7f5f1 100%);
+}
+
+.mesh-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+}
