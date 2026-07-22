@@ -8,7 +8,7 @@ export function BuildJourneySidebar() {
   const [openModule, setOpenModule] = useState(2);
 
   return (
-    <aside className="w-[282px] shrink-0 border-r border-black/[0.06] bg-white">
+    <aside className="hidden w-[282px] shrink-0 border-r border-black/[0.06] bg-white lg:block">
       <div className="border-b border-black/[0.06] p-4">
         <h3 className="text-sm font-semibold text-ink">Build Journey</h3>
         <div className="mt-2.5 flex items-center justify-between text-xs text-ink-muted">

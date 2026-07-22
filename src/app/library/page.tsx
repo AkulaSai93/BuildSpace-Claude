@@ -65,8 +65,8 @@ export default function LibraryPage() {
     <div className="min-h-screen bg-[#faf9f7]">
       <DashboardHeader />
 
-      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-7 px-20 pb-16 pt-10">
-        <div className="flex w-[470px] flex-col items-start gap-[5px]">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-7 px-4 pb-16 pt-10 sm:px-8 lg:px-20">
+        <div className="flex w-full max-w-[470px] flex-col items-start gap-[5px]">
           <h1 className="text-2xl font-semibold text-ink">Project Library</h1>
           <p className="text-sm text-ink-muted">
             You&apos;re 34% through the e-commerce build. Keep the momentum going.
@@ -105,7 +105,7 @@ export default function LibraryPage() {
           </div>
         </div>
 
-        <div className="flex w-full gap-6">
+        <div className="flex w-full flex-col gap-6 lg:flex-row">
           <FilterSidebar
             selectedDifficulties={selectedDifficulties}
             onToggleDifficulty={toggleDifficulty}
@@ -188,7 +188,7 @@ export default function LibraryPage() {
             </div>
 
             {view === "grid" ? (
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((project) => (
                   <ProjectGridCard key={project.slug} project={project} />
                 ))}

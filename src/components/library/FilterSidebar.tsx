@@ -40,7 +40,7 @@ export function FilterSidebar({
   onToggleTechnology,
 }: FilterSidebarProps) {
   return (
-    <aside className="flex w-[302px] shrink-0 flex-col gap-6">
+    <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-[302px]">
       <div>
         <h3 className="mb-3 text-sm font-semibold text-ink">Difficulty</h3>
         <div className="flex flex-col">

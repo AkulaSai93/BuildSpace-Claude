@@ -30,7 +30,7 @@ export function CourseMetaSidebar({ project }: { project: ProjectSummary }) {
   const angle = Math.round((percentComplete / 100) * 360);
 
   return (
-    <aside className="flex w-[303px] shrink-0 flex-col gap-4 p-5">
+    <aside className="hidden w-[303px] shrink-0 flex-col gap-4 p-5 lg:flex">
       <div className="rounded-xl border border-black/[0.08] bg-white p-4">
         <div className="flex items-center gap-3">
           <div

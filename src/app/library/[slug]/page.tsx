@@ -76,7 +76,7 @@ export default function ProjectDetailPage() {
           full-width and lives outside the sidebar flex row below, so it never
           shifts or gets squeezed when the flanking sidebars appear for
           non-Learning-Hub/Workspace tabs (e.g. switching to Phase 2). */}
-      <div className="px-8 pt-5">
+      <div className="px-4 pt-5 sm:px-8">
         <div className="mb-4 flex items-center gap-2 text-sm text-ink-muted">
           <Link href="/library" className="hover:text-ink">
             Library
@@ -87,7 +87,7 @@ export default function ProjectDetailPage() {
           <span className="truncate text-ink">{project.title}</span>
         </div>
 
-        <div className="flex items-start justify-between gap-6">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row">
           <div>
             <h1 className="text-2xl font-semibold text-ink">{project.title}</h1>
             <p className="mt-2 max-w-[724px] text-sm leading-relaxed text-ink-muted">
@@ -174,7 +174,7 @@ export default function ProjectDetailPage() {
       <div className="flex w-full">
         {!isFullWidthTab && <BuildJourneySidebar />}
 
-        <main className="min-w-0 flex-1 px-8 py-5">
+        <main className="min-w-0 flex-1 px-4 py-5 sm:px-8">
           {showsVideoLayout && (
             <>
               <div className="mt-6 overflow-hidden rounded-xl border border-black/[0.08] bg-black">
@@ -218,7 +218,7 @@ export default function ProjectDetailPage() {
             </>
           )}
 
-          <div className="mt-6 flex items-center gap-1 border-b border-black/[0.08]">
+          <div className="mt-6 flex flex-nowrap items-center gap-1 overflow-x-auto border-b border-black/[0.08] [scrollbar-width:none]">
             {(activePhase === "phase2" ? phase2Tabs : baseTabs).map((tab) => (
               <button
                 key={tab}

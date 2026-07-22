@@ -34,21 +34,21 @@ export default function MyLearningPage() {
     <div className="min-h-screen bg-[#faf9f7]">
       <DashboardHeader />
 
-      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-7 px-20 pb-16 pt-10">
-        <div className="flex w-[470px] flex-col items-start gap-[5px]">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-7 px-4 pb-16 pt-10 sm:px-8 lg:px-20">
+        <div className="flex w-full max-w-[470px] flex-col items-start gap-[5px]">
           <h1 className="text-2xl font-semibold text-ink">My Learning</h1>
           <p className="text-sm text-ink-muted">Track your progress, projects, and growth in one place.</p>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
           {myLearningStats.map((stat) => (
             <StatCard key={stat.id} stat={stat} />
           ))}
         </div>
 
-        <div className="flex w-full gap-6">
+        <div className="flex w-full flex-col gap-6 lg:flex-row">
           <div className="flex min-w-0 flex-1 flex-col gap-4">
-            <div className="flex border-b border-black/[0.08]">
+            <div className="flex overflow-x-auto border-b border-black/[0.08] [scrollbar-width:none]">
               {tabConfig.map(({ id, label }) => (
                 <button
                   key={id}

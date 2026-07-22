@@ -21,10 +21,10 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#faf9f7]">
       <DashboardHeader />
 
-      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-7 px-20 pb-10 pt-10">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-7 px-4 pb-10 pt-10 sm:px-8 lg:px-20">
         {/* Greeting */}
-        <div className="flex w-full items-center justify-between">
-          <div className="flex w-[470px] flex-col items-start gap-[5px]">
+        <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full max-w-[470px] flex-col items-start gap-[5px]">
             <p className="text-xs font-medium uppercase text-ink-muted">{today}</p>
             <h1 className="text-2xl font-semibold text-ink">Good morning, Sai.</h1>
             <p className="text-sm text-ink-muted">
@@ -41,7 +41,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
           {dashboardStats.map((stat) => (
             <StatCard key={stat.id} stat={stat} />
           ))}
@@ -55,7 +55,7 @@ export default function DashboardPage() {
               View all
             </Link>
           </div>
-          <div className="grid grid-cols-2 items-stretch gap-6">
+          <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2">
             {inProgressProjects.map((project) => (
               <Link key={project.id} href={`/library/${project.id}`} className="flex h-full">
                 <ProjectProgressCard project={project} />
@@ -79,7 +79,7 @@ export default function DashboardPage() {
               <ArrowRightIcon className="size-3" />
             </Link>
           </div>
-          <div className="grid grid-cols-3 items-stretch gap-6">
+          <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {trendingCourses.map((course) => (
               <Link key={course.id} href={`/library/${course.id}`} className="flex h-full">
                 <CourseCard course={course} />

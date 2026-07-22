@@ -24,7 +24,7 @@ export function LearningSidebar() {
   const maxMinutes = Math.max(...weeklyActivity.map((d) => d.minutes), 1);
 
   return (
-    <aside className="flex w-[351px] shrink-0 flex-col gap-6">
+    <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-[351px]">
       <div className="rounded-xl border border-black/[0.08] bg-white p-5">
         <div className="flex items-center gap-2">
           <TargetIcon className="size-4 text-brand" />
