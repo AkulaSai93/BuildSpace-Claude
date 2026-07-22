@@ -36,7 +36,7 @@ export function Testimonials() {
   const scroll = (dir: 1 | -1) => trackRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-14">
+    <section className="mx-auto max-w-7xl px-6 py-24">
       <Reveal direction="up">
         <div className="mb-6 flex items-end justify-between">
           <div>

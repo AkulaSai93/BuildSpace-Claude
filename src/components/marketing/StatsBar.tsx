@@ -10,7 +10,7 @@ const stats = [
 
 export function StatsBar() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-8">
+    <section className="mx-auto max-w-7xl px-6 py-16">
       <div className="grid grid-cols-2 gap-4 rounded-xl border border-black/[0.08] bg-white p-6 sm:grid-cols-4">
         {stats.map((s, i) => (
           <Reveal key={s.label} direction="up" delay={i * 90}>

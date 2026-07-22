@@ -11,7 +11,7 @@ const steps = [
 
 export function StepsSection() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-14 text-center">
+    <section className="mx-auto max-w-7xl px-6 py-24 text-center">
       <Reveal direction="up">
         <h2 className="font-serif text-2xl font-medium text-ink sm:text-3xl">From learning to shipping in 5 simple steps</h2>
       </Reveal>

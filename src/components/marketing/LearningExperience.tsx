@@ -10,7 +10,7 @@ const items = [
 
 export function LearningExperience() {
   return (
-    <section id="solutions" className="mx-auto max-w-7xl px-6 py-14">
+    <section id="solutions" className="mx-auto max-w-7xl px-6 py-24">
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <Reveal direction="scale" duration={800}>
           <div className="relative overflow-hidden rounded-2xl border border-black/[0.08] bg-gradient-to-br from-[#0f1a15] to-[#1a1410] p-8">

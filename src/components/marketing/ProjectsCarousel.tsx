@@ -25,7 +25,7 @@ export function ProjectsCarousel() {
   };
 
   return (
-    <section id="projects" className="mx-auto max-w-7xl px-6 py-14">
+    <section id="projects" className="mx-auto max-w-7xl px-6 py-24">
       <Reveal direction="up">
         <div className="mb-6 flex items-end justify-between">
           <div>

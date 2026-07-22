@@ -13,7 +13,7 @@ const features = [
 
 export function AIFeatures() {
   return (
-    <section id="features" className="border-y border-black/[0.06] bg-white py-16">
+    <section id="features" className="border-y border-black/[0.06] bg-white py-24">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal direction="up">
           <div>

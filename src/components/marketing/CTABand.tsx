@@ -4,7 +4,7 @@ import { Reveal } from "@/components/marketing/Reveal";
 
 export function CTABand() {
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-14">
+    <section className="mx-auto max-w-7xl px-6 pb-24">
       <Reveal direction="scale" duration={800}>
         <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-brand px-8 py-8 text-center sm:flex-row sm:text-left">
           <div>
