@@ -56,13 +56,20 @@ export function LearningHubTab({
 
       <div className="min-w-0 flex-1 p-6">
         <div className="relative mb-5 flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-black">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/source/Image (Video preview).png"
+            alt="Project introduction preview"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/35" />
           <span className="absolute left-3 top-3 rounded bg-black/50 px-2 py-1 text-[10px] font-semibold tracking-wide text-white">
             INTRO
           </span>
           <button
             type="button"
             aria-label="Play intro"
-            className="flex size-11 items-center justify-center rounded-full bg-white/90 text-brand hover:bg-white"
+            className="relative flex size-11 items-center justify-center rounded-full bg-white/90 text-brand hover:bg-white"
           >
             <PlayIcon className="size-5" />
           </button>

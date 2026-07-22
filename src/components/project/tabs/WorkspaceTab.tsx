@@ -72,28 +72,36 @@ export function WorkspaceTab({
   slug,
   onProjectSubmitted,
   onViewPhase2Videos,
+  resumeAsSubmitted = false,
 }: {
   unlocked: boolean;
   slug: string;
   onProjectSubmitted?: () => void;
   onViewPhase2Videos?: () => void;
+  // When true, this instance is opened after the project has already been
+  // submitted (e.g. revisiting the "Workspace" tab post-submission). Seeds
+  // every step as already complete so the returning-user Overview shows
+  // instead of resetting back to the very first onboarding screen.
+  resumeAsSubmitted?: boolean;
 }) {
   const data = useMemo(() => getWorkspaceData(slug), [slug]);
   const [screen, setScreen] = useState<Screen>("Overview");
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(resumeAsSubmitted);
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState<Record<string, boolean>>({});
   const [reviewMode, setReviewMode] = useState<"side" | "detailed">("side");
   const [buildTasks, setBuildTasks] = useState(data.buildTasks);
   const [deployUrl, setDeployUrl] = useState("");
-  const [finalSubmitted, setFinalSubmitted] = useState(false);
+  const [finalSubmitted, setFinalSubmitted] = useState(resumeAsSubmitted);
   const [openCommitDay, setOpenCommitDay] = useState<string | null>(null);
   const [showCriteria, setShowCriteria] = useState(false);
   const [showReferences, setShowReferences] = useState(false);
   const [chartRange, setChartRange] = useState<"Daily" | "Weekly" | "Monthly">("Daily");
   const [hoverDate, setHoverDate] = useState<string | null>(null);
-  const [githubDone, setGithubDone] = useState(false);
+  const [githubDone, setGithubDone] = useState(resumeAsSubmitted);
+  const [engineeringPlanLocked, setEngineeringPlanLocked] = useState(resumeAsSubmitted);
+  const [buildLocked, setBuildLocked] = useState(resumeAsSubmitted);
 
   if (!unlocked) {
     return (
@@ -118,10 +126,16 @@ export function WorkspaceTab({
 
   const engineeringPlanDone = answeredCount === data.questions.length;
   const buildDone = doneCount === buildTasks.length;
+  // Once a step has genuinely been passed, it stays marked complete even if the
+  // user later edits an answer or unchecks a build task — otherwise the wizard
+  // flips a later step back to "incomplete" while a step further along the
+  // journey (which the user has already moved past) still shows as done.
+  const engineeringPlanCompleted = engineeringPlanLocked || engineeringPlanDone;
+  const buildCompleted = buildLocked || buildDone;
   const stepDone: Record<WorkflowStep, boolean> = {
-    "Engineering Plan": engineeringPlanDone,
-    "AI Review": engineeringPlanDone,
-    Build: buildDone,
+    "Engineering Plan": engineeringPlanCompleted,
+    "AI Review": engineeringPlanCompleted,
+    Build: buildCompleted,
     "GitHub Engineering": githubDone,
     "Submit Project": finalSubmitted,
   };
@@ -129,11 +143,28 @@ export function WorkspaceTab({
     if (stepDone[s]) return true;
     if (s === "Engineering Plan") return true;
     if (s === "AI Review") return answeredCount > 0;
-    if (s === "Build") return engineeringPlanDone;
-    if (s === "GitHub Engineering") return buildDone;
+    if (s === "Build") return engineeringPlanCompleted;
+    if (s === "GitHub Engineering") return buildCompleted;
     if (s === "Submit Project") return githubDone;
     return false;
   };
+
+  // Real submission-readiness state, used to drive the Submit Project progress
+  // ring and check counts instead of hardcoded numbers.
+  const requiredChecks = [
+    { label: "Engineering Plan Submitted", passed: engineeringPlanCompleted },
+    { label: "AI Review Completed", passed: engineeringPlanCompleted },
+    { label: "Build Complete", passed: buildCompleted },
+    { label: "GitHub Repo Connected", passed: githubDone },
+    { label: "Deploy URL Set", passed: !!deployUrl.trim() },
+  ];
+  const requiredPassed = requiredChecks.filter((c) => c.passed).length;
+  const recommendedTotal = 4;
+  const recommendedPassed = Math.min(recommendedTotal, requiredPassed >= 3 ? 2 : requiredPassed >= 1 ? 1 : 0);
+  const totalChecks = requiredChecks.length + recommendedTotal;
+  const totalPassed = requiredPassed + recommendedPassed;
+  const readinessPercent = Math.round((totalPassed / totalChecks) * 100);
+  const canSubmitProject = requiredPassed === requiredChecks.length;
 
   const goToStep = (s: Screen) => setScreen(s);
 
@@ -151,6 +182,7 @@ export function WorkspaceTab({
       setQIndex((i) => i + 1);
       setScreen("Engineering Plan");
     } else {
+      setEngineeringPlanLocked(true);
       setScreen("Build");
     }
   };
@@ -1046,7 +1078,10 @@ export function WorkspaceTab({
               <button
                 type="button"
                 disabled={!buildDone}
-                onClick={() => setScreen("GitHub Engineering")}
+                onClick={() => {
+                  setBuildLocked(true);
+                  setScreen("GitHub Engineering");
+                }}
                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-brand py-2.5 text-sm font-semibold text-brand hover:bg-[#ecfdf5] disabled:cursor-not-allowed disabled:border-black/10 disabled:text-ink-muted disabled:hover:bg-transparent"
               >
                 <CheckCircleIcon className="size-4" />
@@ -1256,16 +1291,24 @@ export function WorkspaceTab({
                   <div className="flex items-center gap-4">
                     <div
                       className="flex size-16 shrink-0 items-center justify-center rounded-full text-sm font-bold text-amber-600"
-                      style={{ background: "conic-gradient(#f59e0b 200deg, #e7e5e0 200deg)" }}
+                      style={{ background: `conic-gradient(#f59e0b ${(readinessPercent / 100) * 360}deg, #e7e5e0 ${(readinessPercent / 100) * 360}deg)` }}
                     >
-                      <span className="flex size-13 items-center justify-center rounded-full bg-white text-xs">56%</span>
+                      <span className="flex size-13 items-center justify-center rounded-full bg-white text-xs">{readinessPercent}%</span>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-ink">Almost There</p>
-                      <p className="text-xs text-ink-muted">5 of 13 checks passed</p>
+                      <p className="text-sm font-semibold text-ink">{canSubmitProject ? "Ready to Submit" : "Almost There"}</p>
+                      <p className="text-xs text-ink-muted">{totalPassed} of {totalChecks} checks passed</p>
                       <div className="mt-1.5 flex gap-2 text-xs">
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-600">5 Required ✓</span>
-                        <span className="rounded-full bg-[#f2f1ee] px-2 py-0.5 font-semibold text-ink-muted">2/4 Recommended</span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 font-semibold ${
+                            canSubmitProject ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-700"
+                          }`}
+                        >
+                          {requiredPassed}/{requiredChecks.length} Required {canSubmitProject ? "✓" : ""}
+                        </span>
+                        <span className="rounded-full bg-[#f2f1ee] px-2 py-0.5 font-semibold text-ink-muted">
+                          {recommendedPassed}/{recommendedTotal} Recommended
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1291,7 +1334,7 @@ export function WorkspaceTab({
 
                 <button
                   type="button"
-                  disabled={!deployUrl.trim()}
+                  disabled={!canSubmitProject}
                   onClick={() => {
                     setFinalSubmitted(true);
                     onProjectSubmitted?.();
@@ -1299,7 +1342,7 @@ export function WorkspaceTab({
                   className="flex items-center justify-center gap-1.5 rounded-2xl bg-brand py-3 text-sm font-semibold text-white hover:bg-brand/90 disabled:cursor-not-allowed disabled:bg-black/20"
                 >
                   <PackageIcon className="size-4" />
-                  Submit Project for Review
+                  {canSubmitProject ? "Submit Project for Review" : `Complete Required Checks (${requiredPassed}/${requiredChecks.length})`}
                 </button>
               </>
             )}
@@ -1349,10 +1392,11 @@ export function WorkspaceTab({
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Submission Readiness</p>
             <div className="mt-2 flex flex-col gap-1.5 text-xs">
-              <div className="flex justify-between"><span className="text-ink-muted">Required Checks</span><span className="font-semibold text-ink">4/5 passed</span></div>
-              <div className="flex justify-between"><span className="text-ink-muted">AI Review</span><span className="font-semibold text-ink">78/100 ✓</span></div>
-              <div className="flex justify-between"><span className="text-ink-muted">Repo Connected</span><span className="font-semibold text-ink">Yes ✓</span></div>
-              <div className="flex justify-between"><span className="text-ink-muted">Deploy URL</span><span className="font-semibold text-ink">{deployUrl ? "Set ✓" : "Pending"}</span></div>
+              <div className="flex justify-between"><span className="text-ink-muted">Required Checks</span><span className="font-semibold text-ink">{requiredPassed}/{requiredChecks.length} passed</span></div>
+              <div className="flex justify-between"><span className="text-ink-muted">Engineering Plan</span><span className="font-semibold text-ink">{engineeringPlanCompleted ? "Done ✓" : "Pending"}</span></div>
+              <div className="flex justify-between"><span className="text-ink-muted">Build</span><span className="font-semibold text-ink">{buildCompleted ? "Done ✓" : "Pending"}</span></div>
+              <div className="flex justify-between"><span className="text-ink-muted">Repo Connected</span><span className="font-semibold text-ink">{githubDone ? "Yes ✓" : "Pending"}</span></div>
+              <div className="flex justify-between"><span className="text-ink-muted">Deploy URL</span><span className="font-semibold text-ink">{deployUrl.trim() ? "Set ✓" : "Pending"}</span></div>
             </div>
           </div>
         )}

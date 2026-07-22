@@ -8,9 +8,6 @@ import { BuildJourneySidebar } from "@/components/project/BuildJourneySidebar";
 import { CourseMetaSidebar } from "@/components/project/CourseMetaSidebar";
 import { LearningHubTab } from "@/components/project/tabs/LearningHubTab";
 import { WorkspaceTab } from "@/components/project/tabs/WorkspaceTab";
-import { InterviewPrepTab } from "@/components/project/tabs/InterviewPrepTab";
-import { DiscussionTab } from "@/components/project/tabs/DiscussionTab";
-import { ReviewsTab } from "@/components/project/tabs/ReviewsTab";
 import { ProSolutionTab } from "@/components/project/tabs/ProSolutionTab";
 import { BuildJourneyContentTabs, type BuildJourneySubTab } from "@/components/project/tabs/BuildJourneyContentTabs";
 import { getProjectBySlug } from "@/lib/library-data";
@@ -19,14 +16,29 @@ import {
   BookmarkIcon,
   ClockIcon,
   ForwardIcon,
+  LockIcon,
   PlayIcon,
   ShareIcon,
   StarIcon,
   VideoIcon,
 } from "@/components/dashboard/icons";
 
+function LockedPhaseTab({ tab }: { tab: string }) {
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-black/[0.08] bg-white px-6 py-16 text-center">
+      <span className="flex size-12 items-center justify-center rounded-full bg-[#f2f1ee] text-ink-muted">
+        <LockIcon className="size-5" />
+      </span>
+      <p className="text-sm font-semibold text-ink">{tab} unlocks after you submit your project</p>
+      <p className="max-w-sm text-sm text-ink-muted">
+        Finish the Workspace steps and submit Milestone 3 for review to unlock {tab.toLowerCase()} for this project.
+      </p>
+    </div>
+  );
+}
+
 const baseTabs = ["Learning Hub", "Workspace", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
-const phase2Tabs = ["Overview", "Tech Stack", "Resources", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
+const phase2Tabs = ["Overview", "Tech Stack", "Resources", "Workspace", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
 type Tab = (typeof baseTabs)[number] | (typeof phase2Tabs)[number];
 
 export default function ProjectDetailPage() {
@@ -40,12 +52,16 @@ export default function ProjectDetailPage() {
     notFound();
   }
 
+  const isLockedPreSubmitTab =
+    !projectSubmitted && (activeTab === "Interview Prep" || activeTab === "Discussion" || activeTab === "Reviews");
+  const showsVideoLayout = activeTab !== "Learning Hub" && activeTab !== "Workspace" && !isLockedPreSubmitTab;
+
   return (
     <div className="min-h-screen bg-white">
       <DashboardHeader />
 
       <div className="flex w-full">
-        {activeTab !== "Learning Hub" && activeTab !== "Workspace" && <BuildJourneySidebar />}
+        {activeTab !== "Learning Hub" && activeTab !== "Workspace" && !isLockedPreSubmitTab && <BuildJourneySidebar />}
 
         <main className="min-w-0 flex-1 px-8 py-5">
           <div className="mb-4 flex items-center gap-2 text-sm text-ink-muted">
@@ -111,7 +127,7 @@ export default function ProjectDetailPage() {
             ))}
           </div>
 
-          {activeTab !== "Learning Hub" && activeTab !== "Workspace" && (
+          {showsVideoLayout && (
             <>
               <div className="mt-6 overflow-hidden rounded-xl border border-black/[0.08] bg-black">
                 <div className="relative flex aspect-video w-full items-center justify-center bg-black">
@@ -183,8 +199,9 @@ export default function ProjectDetailPage() {
             )}
             {activeTab === "Workspace" && (
               <WorkspaceTab
-                unlocked={workspaceUnlocked}
+                unlocked={workspaceUnlocked || projectSubmitted}
                 slug={project.slug}
+                resumeAsSubmitted={projectSubmitted}
                 onProjectSubmitted={() => {
                   setProjectSubmitted(true);
                   setActiveTab("Overview");
@@ -203,14 +220,16 @@ export default function ProjectDetailPage() {
                 activeTab === "Reviews") && (
                 <BuildJourneyContentTabs initialSubTab={activeTab as BuildJourneySubTab} />
               )}
-            {!projectSubmitted && activeTab === "Interview Prep" && <InterviewPrepTab />}
-            {!projectSubmitted && activeTab === "Discussion" && <DiscussionTab />}
-            {!projectSubmitted && activeTab === "Reviews" && <ReviewsTab />}
+            {!projectSubmitted && activeTab === "Interview Prep" && <LockedPhaseTab tab="Interview Prep" />}
+            {!projectSubmitted && activeTab === "Discussion" && <LockedPhaseTab tab="Discussion" />}
+            {!projectSubmitted && activeTab === "Reviews" && <LockedPhaseTab tab="Reviews" />}
             {activeTab === "Pro Solution" && <ProSolutionTab unlocked={projectSubmitted} />}
           </div>
         </main>
 
-        {activeTab !== "Workspace" && activeTab !== "Learning Hub" && <CourseMetaSidebar project={project} />}
+        {activeTab !== "Workspace" && activeTab !== "Learning Hub" && !isLockedPreSubmitTab && (
+          <CourseMetaSidebar project={project} />
+        )}
       </div>
     </div>
   );
