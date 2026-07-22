@@ -660,14 +660,26 @@ export function WorkspaceTab({
               </div>
 
               {submitted[question.id] ? (
-                <button
-                  type="button"
-                  onClick={() => setSubmitted((prev) => ({ ...prev, [question.id]: false }))}
-                  className="mt-4 flex items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink"
-                >
-                  <RefreshIcon className="size-3.5" />
-                  Edit answer
-                </button>
+                <div className="mt-4 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setSubmitted((prev) => ({ ...prev, [question.id]: false }))}
+                    className="flex items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink"
+                  >
+                    <RefreshIcon className="size-3.5" />
+                    Edit answer
+                  </button>
+                  {qIndex < data.questions.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setQIndex((i) => i + 1)}
+                      className="flex items-center gap-1.5 rounded-2xl bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand/90"
+                    >
+                      Next Question
+                      <ArrowRightIcon className="size-3.5" />
+                    </button>
+                  )}
+                </div>
               ) : (
                 <div className="mt-4 flex items-center gap-3">
                   <button
@@ -686,6 +698,16 @@ export function WorkspaceTab({
                     <SendIcon className="size-3.5" />
                     Submit for AI Review
                   </button>
+                  {qIndex < data.questions.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setQIndex((i) => i + 1)}
+                      className="flex shrink-0 items-center gap-1.5 rounded-2xl border border-black/[0.08] px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.02]"
+                    >
+                      Next
+                      <ArrowRightIcon className="size-3.5" />
+                    </button>
+                  )}
                 </div>
               )}
             </div>
