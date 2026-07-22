@@ -35,13 +35,13 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/dashboard"
+            href="/login"
             className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.03] sm:inline-block"
           >
             Log In
           </Link>
           <Link
-            href="/dashboard"
+            href="/register"
             className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand/90"
           >
             Start Building

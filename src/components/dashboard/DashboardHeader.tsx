@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useClickAway } from "@/hooks/useClickAway";
 import {
   BellIcon,
   GraduationIcon,
@@ -12,6 +14,12 @@ import {
   SearchIcon,
 } from "./icons";
 
+function initialsFromEmail(email: string | null | undefined) {
+  if (!email) return "?";
+  const name = email.split("@")[0];
+  return name.slice(0, 2).toUpperCase();
+}
+
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: GridIcon },
   { label: "Library", href: "/library", icon: LibraryIcon },
@@ -20,7 +28,18 @@ const navItems = [
 
 export function DashboardHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth();
+  useClickAway(accountMenuRef, () => setAccountMenuOpen(false));
+
+  const handleLogout = async () => {
+    await logout();
+    setAccountMenuOpen(false);
+    router.push("/login");
+  };
 
   return (
     <header className="w-full border-b border-black/[0.08] bg-white px-4 py-4 sm:px-8 lg:px-20">
@@ -83,17 +102,35 @@ export function DashboardHeader() {
             <BellIcon className="size-4" />
             <span className="absolute right-1 top-1.5 size-1.5 rounded-full bg-brand" />
           </button>
-          <button
-            type="button"
-            aria-label="Account"
-            className="flex size-8 items-center justify-center rounded-full text-xs font-semibold text-white"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, rgb(6, 95, 70) 0%, rgb(0, 122, 85) 100%)",
-            }}
-          >
-            JD
-          </button>
+          <div className="relative" ref={accountMenuRef}>
+            <button
+              type="button"
+              aria-label="Account"
+              onClick={() => setAccountMenuOpen((v) => !v)}
+              className="flex size-8 items-center justify-center rounded-full text-xs font-semibold text-white"
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg, rgb(6, 95, 70) 0%, rgb(0, 122, 85) 100%)",
+              }}
+            >
+              {initialsFromEmail(user?.email)}
+            </button>
+            {accountMenuOpen && (
+              <div className="absolute right-0 top-10 z-50 w-56 rounded-xl border border-black/[0.08] bg-white py-1.5 text-sm shadow-[0_16px_36px_-20px_rgba(0,0,0,0.25)]">
+                <div className="border-b border-black/[0.06] px-3 py-2">
+                  <p className="truncate text-xs text-ink-muted">Signed in as</p>
+                  <p className="truncate font-semibold text-ink">{user?.email ?? "—"}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full px-3 py-2 text-left text-ink hover:bg-black/[0.03]"
+                >
+                  Log out
+                </button>
+              </div>
+            )}
+          </div>
           <button
             type="button"
             aria-label="Toggle menu"

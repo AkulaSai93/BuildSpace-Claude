@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRightIcon,
   BranchIcon,
@@ -47,7 +47,7 @@ const chipColorMap: Record<string, string> = {
   Performance: "bg-amber-50 text-amber-700",
   Maintainability: "bg-emerald-50 text-emerald-700",
 };
-import { getWorkspaceData, mentorTips, workflowSteps, type WorkflowStep } from "@/lib/workspace-data";
+import { getWorkspaceData, mentorTips, workflowSteps, type WorkflowStep, type WorkspaceData } from "@/lib/workspace-data";
 
 const stepOrder: WorkflowStep[] = [...workflowSteps];
 type Screen = "Overview" | WorkflowStep;
@@ -84,14 +84,15 @@ export function WorkspaceTab({
   // instead of resetting back to the very first onboarding screen.
   resumeAsSubmitted?: boolean;
 }) {
-  const data = useMemo(() => getWorkspaceData(slug), [slug]);
+  const [data, setData] = useState<WorkspaceData | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [screen, setScreen] = useState<Screen>("Overview");
   const [hasStarted, setHasStarted] = useState(resumeAsSubmitted);
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState<Record<string, boolean>>({});
   const [reviewMode, setReviewMode] = useState<"side" | "detailed">("side");
-  const [buildTasks, setBuildTasks] = useState(data.buildTasks);
+  const [buildTasks, setBuildTasks] = useState<WorkspaceData["buildTasks"]>([]);
   const [deployUrl, setDeployUrl] = useState("");
   const [finalSubmitted, setFinalSubmitted] = useState(resumeAsSubmitted);
   const [openCommitDay, setOpenCommitDay] = useState<string | null>(null);
@@ -102,6 +103,25 @@ export function WorkspaceTab({
   const [githubDone, setGithubDone] = useState(resumeAsSubmitted);
   const [engineeringPlanLocked, setEngineeringPlanLocked] = useState(resumeAsSubmitted);
   const [buildLocked, setBuildLocked] = useState(resumeAsSubmitted);
+
+  useEffect(() => {
+    let cancelled = false;
+    setData(null);
+    setLoadError(null);
+    getWorkspaceData(slug)
+      .then((d) => {
+        if (cancelled) return;
+        setData(d);
+        setBuildTasks(d.buildTasks);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setLoadError(err instanceof Error ? err.message : "Failed to load workspace data");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
   if (!unlocked) {
     return (
@@ -114,6 +134,23 @@ export function WorkspaceTab({
           Finish every required Learning Hub section, then hit &quot;Continue to Workspace&quot; to start
           your Engineering Plan.
         </p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-6 py-16 text-center">
+        <p className="text-sm font-semibold text-red-700">Couldn&apos;t load workspace data</p>
+        <p className="max-w-sm text-xs text-red-600">{loadError}</p>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center rounded-xl border border-black/[0.08] bg-white px-6 py-24 text-sm text-ink-muted">
+        Loading workspace…
       </div>
     );
   }

@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { getUser } from "@/lib/auth/supabaseAuth";
+import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ProjectProgressCard } from "@/components/dashboard/ProjectProgressCard";
@@ -16,7 +20,17 @@ const today = new Date().toLocaleDateString("en-US", {
   day: "numeric",
 });
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const accessToken = (await cookies()).get(ACCESS_COOKIE)?.value;
+  if (!accessToken) {
+    redirect("/login");
+  }
+  try {
+    await getUser(accessToken);
+  } catch {
+    redirect("/login");
+  }
+
   return (
     <div className="min-h-screen bg-[#faf9f7]">
       <DashboardHeader />

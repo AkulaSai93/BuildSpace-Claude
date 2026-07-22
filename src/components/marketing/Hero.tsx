@@ -164,7 +164,7 @@ export function Hero() {
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
                 <Link
-                  href="/dashboard"
+                  href="/register"
                   className="group flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-ink/90"
                 >
                   Start Building for Free

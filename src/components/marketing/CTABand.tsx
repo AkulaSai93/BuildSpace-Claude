@@ -15,7 +15,7 @@ export function CTABand() {
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <Link
-              href="/dashboard"
+              href="/register"
               className="flex items-center gap-1.5 rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand hover:bg-white/90"
             >
               Start Building for Free
