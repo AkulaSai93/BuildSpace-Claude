@@ -48,11 +48,15 @@ export function ProjectsCarousel() {
           <Link
             key={p.slug}
             href="/dashboard"
-            className="w-[300px] shrink-0 snap-start overflow-hidden rounded-xl border border-black/[0.08] bg-white hover:border-black/[0.16]"
+            className="group w-[300px] shrink-0 snap-start overflow-hidden rounded-xl border border-black/[0.08] bg-white transition-all duration-300 hover:-translate-y-1 hover:border-black/[0.16]"
           >
             <div className="h-[150px] w-full overflow-hidden bg-stone-200">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={encodeURI(p.thumbnail)} alt={p.title} className="h-full w-full object-cover" />
+              <img
+                src={encodeURI(p.thumbnail)}
+                alt={p.title}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
             </div>
             <div className="p-4">
               <p className="text-sm font-semibold leading-snug text-ink">{p.title}</p>

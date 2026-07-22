@@ -13,13 +13,13 @@ export function Hero() {
     <section className="relative overflow-hidden">
       {/* Ambient background glow */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-[-12rem] size-[42rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(6,95,70,0.14),transparent)]" />
-        <div className="absolute -right-24 top-24 size-72 rounded-full bg-[radial-gradient(closest-side,rgba(6,95,70,0.10),transparent)]" />
+        <div className="absolute left-1/2 top-[-12rem] size-[42rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(6,95,70,0.12),transparent)]" />
+        <div className="absolute -right-24 top-24 size-72 rounded-full bg-[radial-gradient(closest-side,rgba(6,95,70,0.08),transparent)]" />
         <div
-          className="absolute inset-0 opacity-[0.35]"
+          className="absolute inset-0 opacity-[0.3]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.035) 1px, transparent 1px)",
+              "linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
             maskImage: "radial-gradient(ellipse 70% 60% at 50% 0%, black 40%, transparent 100%)",
           }}
@@ -29,12 +29,18 @@ export function Hero() {
       <div className="mx-auto max-w-7xl px-6 pb-20 pt-16">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-10">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-white/70 px-3 py-1.5 text-xs font-semibold text-brand shadow-[0_1px_2px_rgba(6,95,70,0.06)] backdrop-blur">
+            <span
+              className="inline-flex animate-fade-in-up items-center gap-1.5 rounded-full border border-brand/20 bg-white px-3 py-1.5 text-xs font-semibold text-brand"
+              style={{ animationDelay: "0ms" }}
+            >
               <SparklesIcon className="size-3.5" />
               AI-Powered Learning Platform
             </span>
 
-            <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight text-ink sm:text-[3.25rem]">
+            <h1
+              className="mt-5 animate-fade-in-up text-4xl font-bold leading-[1.08] tracking-tight text-ink sm:text-[3.25rem]"
+              style={{ animationDelay: "80ms" }}
+            >
               The AI-powered platform to{" "}
               <span className="bg-gradient-to-r from-brand to-emerald-500 bg-clip-text text-transparent">learn,</span>
               <br />
@@ -46,15 +52,18 @@ export function Hero() {
               software.
             </h1>
 
-            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-muted">
+            <p
+              className="mt-5 max-w-md animate-fade-in-up text-base leading-relaxed text-ink-muted"
+              style={{ animationDelay: "160ms" }}
+            >
               BuildSpace helps students and early engineers go from learning to building production-ready
               projects with AI by their side.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex animate-fade-in-up flex-wrap items-center gap-3" style={{ animationDelay: "240ms" }}>
               <Link
                 href="/dashboard"
-                className="group flex items-center gap-2 rounded-full bg-gradient-to-b from-brand to-[#054d39] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_12px_24px_-10px_rgba(6,95,70,0.55)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_16px_30px_-10px_rgba(6,95,70,0.6)]"
+                className="group flex items-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-brand/90"
               >
                 Start Building for Free
                 <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -67,7 +76,10 @@ export function Hero() {
               </Link>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-ink-muted">
+            <div
+              className="mt-6 flex animate-fade-in-up flex-wrap items-center gap-4 text-xs text-ink-muted"
+              style={{ animationDelay: "300ms" }}
+            >
               {["No credit card required", "Free forever plan", "Cancel anytime"].map((t) => (
                 <span key={t} className="flex items-center gap-1.5">
                   <CheckCircleIcon className="size-3.5 text-brand" />
@@ -76,7 +88,10 @@ export function Hero() {
               ))}
             </div>
 
-            <div className="mt-7 flex items-center gap-3 border-t border-black/[0.06] pt-6">
+            <div
+              className="mt-7 flex animate-fade-in-up items-center gap-3 border-t border-black/[0.06] pt-6"
+              style={{ animationDelay: "360ms" }}
+            >
               <div className="flex -space-x-2.5">
                 {avatarColors.map((c, i) => (
                   <span
@@ -99,10 +114,8 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-brand/15 via-transparent to-transparent blur-2xl" />
-
-            <div className="rounded-2xl border border-black/[0.08] bg-gradient-to-br from-[#f6fdf9] to-[#faf9f7] p-3 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset,0_40px_80px_-30px_rgba(6,95,70,0.35)] ring-1 ring-black/[0.02]">
+          <div className="relative animate-fade-in-up" style={{ animationDelay: "160ms" }}>
+            <div className="rounded-2xl border border-black/[0.08] bg-gradient-to-br from-[#f6fdf9] to-[#faf9f7] p-3">
               <div className="overflow-hidden rounded-xl border border-black/[0.06] bg-white">
                 <div className="flex items-center gap-1.5 border-b border-black/[0.06] bg-[#faf9f7]/60 px-4 py-2.5">
                   <span className="size-2.5 rounded-full bg-red-300" />
@@ -159,7 +172,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="absolute -bottom-5 -left-5 hidden items-center gap-2 rounded-2xl border border-black/[0.06] bg-white/90 px-3.5 py-2.5 shadow-[0_20px_40px_-16px_rgba(0,0,0,0.18)] backdrop-blur sm:flex">
+            <div className="absolute -bottom-5 -left-5 hidden items-center gap-2 rounded-2xl border border-black/[0.08] bg-white px-3.5 py-2.5 sm:flex">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#ecfdf5] text-brand">
                 <CheckCircleIcon className="size-4" />
               </span>
@@ -169,7 +182,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="absolute -right-4 -top-4 hidden size-14 rotate-6 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-[#054d39] text-lg font-semibold text-white shadow-[0_16px_30px_-10px_rgba(6,95,70,0.55)] sm:flex">
+            <div className="absolute -right-4 -top-4 hidden size-14 rotate-6 items-center justify-center rounded-2xl bg-brand text-lg font-semibold text-white sm:flex">
               {"</>"}
             </div>
           </div>

@@ -63,7 +63,7 @@ export function Testimonials() {
         {testimonials.map((t) => (
           <div
             key={t.name}
-            className="w-[320px] shrink-0 snap-start rounded-xl border border-black/[0.08] bg-white p-5"
+            className="w-[320px] shrink-0 snap-start rounded-xl border border-black/[0.08] bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-black/[0.16]"
           >
             <p className="text-sm leading-relaxed text-ink">&quot;{t.quote}&quot;</p>
             <div className="mt-4 flex items-center gap-3">

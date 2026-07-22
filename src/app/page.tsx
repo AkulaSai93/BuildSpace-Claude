@@ -9,6 +9,7 @@ import { AIFeatures } from "@/components/marketing/AIFeatures";
 import { LearningExperience } from "@/components/marketing/LearningExperience";
 import { Testimonials } from "@/components/marketing/Testimonials";
 import { CTABand } from "@/components/marketing/CTABand";
+import { Reveal } from "@/components/marketing/Reveal";
 
 export default function HomePage() {
   return (
@@ -16,14 +17,30 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         <Hero />
-        <LogoStrip />
-        <StatsBar />
-        <ProjectsCarousel />
-        <StepsSection />
-        <AIFeatures />
-        <LearningExperience />
-        <Testimonials />
-        <CTABand />
+        <Reveal>
+          <LogoStrip />
+        </Reveal>
+        <Reveal>
+          <StatsBar />
+        </Reveal>
+        <Reveal>
+          <ProjectsCarousel />
+        </Reveal>
+        <Reveal>
+          <StepsSection />
+        </Reveal>
+        <Reveal>
+          <AIFeatures />
+        </Reveal>
+        <Reveal>
+          <LearningExperience />
+        </Reveal>
+        <Reveal>
+          <Testimonials />
+        </Reveal>
+        <Reveal>
+          <CTABand />
+        </Reveal>
       </main>
       <Footer />
     </div>
