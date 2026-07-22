@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signUp } from "@/lib/auth/supabaseAuth";
 import { setSessionCookies } from "@/lib/auth/cookies";
+import { ensureProfile } from "@/lib/auth/profile";
 
 export async function POST(request: NextRequest) {
   const { email, password } = await request.json().catch(() => ({}));
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const session = await signUp(email, password);
-    const res = NextResponse.json({ user: { id: session.user.id, email: session.user.email } });
+    await ensureProfile({ id: session.user.id, email: session.user.email });
+    const res = NextResponse.json({ user: { id: session.user.id, email: session.user.email, role: "user" } });
     setSessionCookies(res, session);
     return res;
   } catch (err) {

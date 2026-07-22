@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { FilterSidebar } from "@/components/library/FilterSidebar";
 import { ProjectGridCard } from "@/components/library/ProjectGridCard";
@@ -12,16 +12,27 @@ import {
   ListIcon,
   SearchIcon,
 } from "@/components/dashboard/icons";
-import { libraryCategories, projects } from "@/lib/library-data";
+import { fetchProjects, getLibraryCategories } from "@/lib/library-data";
+import type { ProjectSummary } from "@/types/library";
 
 type ViewMode = "grid" | "list";
 
 export default function LibraryPage() {
+  const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("All Projects");
   const [view, setView] = useState<ViewMode>("grid");
   const [query, setQuery] = useState("");
   const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchProjects()
+      .then(setProjects)
+      .catch((err) => setLoadError(err instanceof Error ? err.message : "Failed to load projects"));
+  }, []);
+
+  const libraryCategories = useMemo(() => getLibraryCategories(projects ?? []), [projects]);
 
   const toggleDifficulty = (value: string) => {
     setSelectedDifficulties((prev) =>
@@ -41,7 +52,7 @@ export default function LibraryPage() {
   };
 
   const filtered = useMemo(() => {
-    return projects.filter((p) => {
+    return (projects ?? []).filter((p) => {
       const matchesCategory = activeCategory === "All Projects" || p.category === activeCategory;
       const matchesQuery =
         query.trim() === "" ||
@@ -54,7 +65,7 @@ export default function LibraryPage() {
         selectedTechnologies.some((tech) => p.tags.some((t) => t.toLowerCase() === tech.toLowerCase()));
       return matchesCategory && matchesQuery && matchesDifficulty && matchesTechnology;
     });
-  }, [activeCategory, query, selectedDifficulties, selectedTechnologies]);
+  }, [projects, activeCategory, query, selectedDifficulties, selectedTechnologies]);
 
   const activeFilters = [
     ...selectedDifficulties.map((value) => ({ type: "difficulty" as const, value })),
@@ -73,6 +84,20 @@ export default function LibraryPage() {
           </p>
         </div>
 
+        {loadError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Couldn&apos;t load projects: {loadError}
+          </div>
+        )}
+
+        {!loadError && !projects && (
+          <div className="flex items-center justify-center rounded-xl border border-black/[0.08] bg-white px-6 py-24 text-sm text-ink-muted">
+            Loading projects…
+          </div>
+        )}
+
+        {projects && (
+        <>
         <div className="flex w-full flex-col gap-6 rounded-xl border border-black/[0.08] bg-white p-4">
           <div className="flex h-10 w-full items-center gap-2 rounded-full bg-[#f2f1ee]/70 px-4">
             <SearchIcon className="size-4 text-ink-muted" />
@@ -202,6 +227,8 @@ export default function LibraryPage() {
             )}
           </div>
         </div>
+        </>
+        )}
       </main>
     </div>
   );

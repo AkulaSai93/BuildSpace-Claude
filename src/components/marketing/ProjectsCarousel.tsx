@@ -1,15 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { projects } from "@/lib/library-data";
+import { fetchProjects } from "@/lib/library-data";
+import type { ProjectSummary } from "@/types/library";
 import { ArrowRightIcon, ClockIcon, VideoIcon } from "@/components/dashboard/icons";
 import { Reveal } from "@/components/marketing/Reveal";
 
 const featuredSlugs = ["ecommerce-platform", "realtime-chat", "ai-resume-builder", "netflix-clone"];
-const featured = featuredSlugs
-  .map((slug) => projects.find((p) => p.slug === slug))
-  .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
 const levelStyles: Record<string, string> = {
   Beginner: "bg-emerald-50 text-emerald-600",
@@ -19,10 +17,22 @@ const levelStyles: Record<string, string> = {
 
 export function ProjectsCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
+  const [featured, setFeatured] = useState<ProjectSummary[]>([]);
+
+  useEffect(() => {
+    fetchProjects()
+      .then((projects) => {
+        const bySlug = new Map(projects.map((p) => [p.slug, p]));
+        setFeatured(featuredSlugs.map((slug) => bySlug.get(slug)).filter((p): p is ProjectSummary => Boolean(p)));
+      })
+      .catch(() => setFeatured([]));
+  }, []);
 
   const scroll = (dir: 1 | -1) => {
     trackRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
   };
+
+  if (featured.length === 0) return null;
 
   return (
     <section id="projects" className="mx-auto max-w-7xl px-6 py-24">

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser, refreshSession } from "@/lib/auth/supabaseAuth";
 import { ACCESS_COOKIE, REFRESH_COOKIE, setSessionCookies, clearSessionCookies } from "@/lib/auth/cookies";
+import { ensureProfile, getProfile } from "@/lib/auth/profile";
+
+async function withRole(user: { id: string; email: string | null }) {
+  await ensureProfile(user);
+  const profile = await getProfile(user.id);
+  return { id: user.id, email: user.email, role: profile?.role ?? "user" };
+}
 
 export async function GET(request: NextRequest) {
   const accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
@@ -12,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const user = await getUser(accessToken);
-    return NextResponse.json({ user: { id: user.id, email: user.email } });
+    return NextResponse.json({ user: await withRole({ id: user.id, email: user.email }) });
   } catch {
     // Access token likely expired — try a silent refresh before giving up.
     if (!refreshToken) {
@@ -22,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
     try {
       const session = await refreshSession(refreshToken);
-      const res = NextResponse.json({ user: { id: session.user.id, email: session.user.email } });
+      const res = NextResponse.json({ user: await withRole({ id: session.user.id, email: session.user.email }) });
       setSessionCookies(res, session);
       return res;
     } catch {

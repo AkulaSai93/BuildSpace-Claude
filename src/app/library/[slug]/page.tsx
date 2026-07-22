@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { notFound, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { BuildJourneySidebar } from "@/components/project/BuildJourneySidebar";
@@ -10,7 +10,6 @@ import { LearningHubTab } from "@/components/project/tabs/LearningHubTab";
 import { WorkspaceTab } from "@/components/project/tabs/WorkspaceTab";
 import { ProSolutionTab } from "@/components/project/tabs/ProSolutionTab";
 import { BuildJourneyContentTabs, type BuildJourneySubTab } from "@/components/project/tabs/BuildJourneyContentTabs";
-import { getProjectBySlug } from "@/lib/library-data";
 import {
   BackIcon,
   BookmarkIcon,
@@ -22,6 +21,7 @@ import {
   StarIcon,
   VideoIcon,
 } from "@/components/dashboard/icons";
+import type { ProjectSummary } from "@/types/library";
 
 // Interview Prep, Discussion, and Reviews are shared, not phase-exclusive —
 // they show the same real content (sourced from the Phase 2 data/components)
@@ -37,11 +37,33 @@ type Phase = "phase1" | "phase2";
 
 export default function ProjectDetailPage() {
   const params = useParams<{ slug: string }>();
-  const project = getProjectBySlug(params.slug);
+  const [project, setProject] = useState<ProjectSummary | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("Learning Hub");
   const [workspaceUnlocked, setWorkspaceUnlocked] = useState(false);
   const [projectSubmitted, setProjectSubmitted] = useState(false);
   const [activePhase, setActivePhase] = useState<Phase>("phase1");
+
+  useEffect(() => {
+    let cancelled = false;
+    setProject(null);
+    setLoadError(null);
+    fetch(`/api/projects/${encodeURIComponent(params.slug)}`, { cache: "no-store" })
+      .then(async (res) => {
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error ?? `Failed to load project (${res.status})`);
+        return body.project as ProjectSummary;
+      })
+      .then((p) => {
+        if (!cancelled) setProject(p);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Failed to load project");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [params.slug]);
 
   const goToPhase1 = () => {
     setActivePhase("phase1");
@@ -54,8 +76,24 @@ export default function ProjectDetailPage() {
     setActiveTab("Overview");
   };
 
+  if (loadError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-white px-6 text-center">
+        <p className="text-sm font-semibold text-red-700">Couldn&apos;t load this project</p>
+        <p className="max-w-sm text-xs text-red-600">{loadError}</p>
+        <Link href="/library" className="mt-2 text-sm font-medium text-brand hover:underline">
+          Back to Library
+        </Link>
+      </div>
+    );
+  }
+
   if (!project) {
-    notFound();
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white text-sm text-ink-muted">
+        Loading project…
+      </div>
+    );
   }
 
   // Interview Prep, Discussion, and Reviews are shared content — like the

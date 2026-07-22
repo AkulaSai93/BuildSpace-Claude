@@ -121,6 +121,15 @@ export function DashboardHeader() {
                   <p className="truncate text-xs text-ink-muted">Signed in as</p>
                   <p className="truncate font-semibold text-ink">{user?.email ?? "—"}</p>
                 </div>
+                {user?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setAccountMenuOpen(false)}
+                    className="block w-full px-3 py-2 text-left text-ink hover:bg-black/[0.03]"
+                  >
+                    Admin panel
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={handleLogout}
