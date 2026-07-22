@@ -38,8 +38,10 @@ function LockedPhaseTab({ tab }: { tab: string }) {
 }
 
 const baseTabs = ["Learning Hub", "Workspace", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
-const phase2Tabs = ["Overview", "Tech Stack", "Resources", "Workspace", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
+const phase2Tabs = ["Overview", "Tech Stack", "Resources", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
 type Tab = (typeof baseTabs)[number] | (typeof phase2Tabs)[number];
+
+type Phase = "phase1" | "phase2";
 
 export default function ProjectDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -47,6 +49,18 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>("Learning Hub");
   const [workspaceUnlocked, setWorkspaceUnlocked] = useState(false);
   const [projectSubmitted, setProjectSubmitted] = useState(false);
+  const [activePhase, setActivePhase] = useState<Phase>("phase1");
+
+  const goToPhase1 = () => {
+    setActivePhase("phase1");
+    setActiveTab("Learning Hub");
+  };
+
+  const goToPhase2 = () => {
+    if (!projectSubmitted) return;
+    setActivePhase("phase2");
+    setActiveTab("Overview");
+  };
 
   if (!project) {
     notFound();
@@ -127,6 +141,36 @@ export default function ProjectDetailPage() {
             ))}
           </div>
 
+          <div className="mt-6 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={goToPhase1}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
+                activePhase === "phase1" ? "bg-brand text-white" : "bg-[#f2f1ee] text-ink-muted hover:text-ink"
+              }`}
+            >
+              Phase 1
+            </button>
+            <button
+              type="button"
+              onClick={goToPhase2}
+              disabled={!projectSubmitted}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
+                activePhase === "phase2"
+                  ? "bg-brand text-white"
+                  : projectSubmitted
+                    ? "bg-[#f2f1ee] text-ink-muted hover:text-ink"
+                    : "cursor-not-allowed bg-[#f2f1ee] text-ink-muted/50"
+              }`}
+            >
+              {!projectSubmitted && <LockIcon className="size-3.5" />}
+              Phase 2
+            </button>
+            {!projectSubmitted && (
+              <span className="text-xs text-ink-muted">Complete Phase 1 and submit your project to unlock Phase 2</span>
+            )}
+          </div>
+
           {showsVideoLayout && (
             <>
               <div className="mt-6 overflow-hidden rounded-xl border border-black/[0.08] bg-black">
@@ -171,7 +215,7 @@ export default function ProjectDetailPage() {
           )}
 
           <div className="mt-6 flex items-center gap-1 border-b border-black/[0.08]">
-            {(projectSubmitted ? phase2Tabs : baseTabs).map((tab) => (
+            {(activePhase === "phase2" ? phase2Tabs : baseTabs).map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -204,9 +248,11 @@ export default function ProjectDetailPage() {
                 resumeAsSubmitted={projectSubmitted}
                 onProjectSubmitted={() => {
                   setProjectSubmitted(true);
+                  setActivePhase("phase2");
                   setActiveTab("Overview");
                 }}
                 onViewPhase2Videos={() => {
+                  setActivePhase("phase2");
                   setActiveTab("Overview");
                 }}
               />
