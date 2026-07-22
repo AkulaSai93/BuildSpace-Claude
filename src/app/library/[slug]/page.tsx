@@ -23,19 +23,11 @@ import {
   VideoIcon,
 } from "@/components/dashboard/icons";
 
-function LockedPhaseTab({ tab }: { tab: string }) {
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-black/[0.08] bg-white px-6 py-16 text-center">
-      <span className="flex size-12 items-center justify-center rounded-full bg-[#f2f1ee] text-ink-muted">
-        <LockIcon className="size-5" />
-      </span>
-      <p className="text-sm font-semibold text-ink">{tab} unlocks after you submit your project</p>
-      <p className="max-w-sm text-sm text-ink-muted">
-        Finish the Workspace steps and submit Milestone 3 for review to unlock {tab.toLowerCase()} for this project.
-      </p>
-    </div>
-  );
-}
+// Interview Prep, Discussion, and Reviews are shared, not phase-exclusive —
+// they show the same real content (sourced from the Phase 2 data/components)
+// regardless of which phase chip you're on or whether the project has been
+// submitted yet, so clicking them never locks or switches phase.
+const sharedTabs = ["Interview Prep", "Discussion", "Reviews"] as const;
 
 const baseTabs = ["Learning Hub", "Workspace", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
 const phase2Tabs = ["Overview", "Tech Stack", "Resources", "Interview Prep", "Discussion", "Reviews", "Pro Solution"] as const;
@@ -66,9 +58,15 @@ export default function ProjectDetailPage() {
     notFound();
   }
 
-  const isLockedPreSubmitTab =
-    !projectSubmitted && (activeTab === "Interview Prep" || activeTab === "Discussion" || activeTab === "Reviews");
-  const showsVideoLayout = activeTab !== "Learning Hub" && activeTab !== "Workspace" && !isLockedPreSubmitTab;
+  // Interview Prep, Discussion, and Reviews are shared content — like the
+  // Learning Hub and Workspace tabs, they render full-width with no video
+  // strip and no flanking course sidebars, rather than the narrower
+  // sidebar-flanked layout used for Overview/Tech Stack/Resources.
+  const isFullWidthTab =
+    activeTab === "Learning Hub" ||
+    activeTab === "Workspace" ||
+    sharedTabs.includes(activeTab as (typeof sharedTabs)[number]);
+  const showsVideoLayout = !isFullWidthTab;
 
   return (
     <div className="min-h-screen bg-white">
@@ -174,7 +172,7 @@ export default function ProjectDetailPage() {
       </div>
 
       <div className="flex w-full">
-        {activeTab !== "Learning Hub" && activeTab !== "Workspace" && !isLockedPreSubmitTab && <BuildJourneySidebar />}
+        {!isFullWidthTab && <BuildJourneySidebar />}
 
         <main className="min-w-0 flex-1 px-8 py-5">
           {showsVideoLayout && (
@@ -263,25 +261,15 @@ export default function ProjectDetailPage() {
                 }}
               />
             )}
-            {projectSubmitted &&
-              (activeTab === "Overview" ||
-                activeTab === "Tech Stack" ||
-                activeTab === "Resources" ||
-                activeTab === "Interview Prep" ||
-                activeTab === "Discussion" ||
-                activeTab === "Reviews") && (
-                <BuildJourneyContentTabs initialSubTab={activeTab as BuildJourneySubTab} />
-              )}
-            {!projectSubmitted && activeTab === "Interview Prep" && <LockedPhaseTab tab="Interview Prep" />}
-            {!projectSubmitted && activeTab === "Discussion" && <LockedPhaseTab tab="Discussion" />}
-            {!projectSubmitted && activeTab === "Reviews" && <LockedPhaseTab tab="Reviews" />}
+            {((projectSubmitted && (activeTab === "Overview" || activeTab === "Tech Stack" || activeTab === "Resources")) ||
+              sharedTabs.includes(activeTab as (typeof sharedTabs)[number])) && (
+              <BuildJourneyContentTabs initialSubTab={activeTab as BuildJourneySubTab} />
+            )}
             {activeTab === "Pro Solution" && <ProSolutionTab unlocked={projectSubmitted} />}
           </div>
         </main>
 
-        {activeTab !== "Workspace" && activeTab !== "Learning Hub" && !isLockedPreSubmitTab && (
-          <CourseMetaSidebar project={project} />
-        )}
+        {!isFullWidthTab && <CourseMetaSidebar project={project} />}
       </div>
     </div>
   );
