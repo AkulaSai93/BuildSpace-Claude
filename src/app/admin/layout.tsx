@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/supabaseAuth";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import { getProfile } from "@/lib/auth/profile";
-import { AdminSidebar } from "./AdminSidebar";
+import { AdminShell } from "./AdminShell";
 
 // Server-side gate for the whole /admin section: verifies the session
 // cookie against Supabase, then checks profiles.role — same check as
@@ -26,12 +26,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/login");
   }
 
-  return (
-    <div className="min-h-screen bg-[#faf9f7]">
-      <AdminSidebar email={email} />
-      <main className="min-h-screen pl-60">
-        <div className="w-full px-4 py-8 sm:px-8 lg:px-12">{children}</div>
-      </main>
-    </div>
-  );
+  return <AdminShell email={email}>{children}</AdminShell>;
 }

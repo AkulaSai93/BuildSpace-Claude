@@ -15,6 +15,12 @@ import {
   Trash2,
   ExternalLink,
   LayoutPanelTop,
+  UploadCloud,
+  Download,
+  CheckCircle2,
+  AlertTriangle,
+  FilePenLine,
+  FileSpreadsheet,
 } from "lucide-react";
 
 const categories = [
@@ -320,6 +326,18 @@ export default function AdminProjectsPage() {
   const [saving, setSaving] = useState(false);
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [chooserOpen, setChooserOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importResult, setImportResult] = useState<{
+    created: number;
+    updated: number;
+    skipped: number;
+    results: { row: number; slug: string; status: string; reason?: string }[];
+  } | null>(null);
 
   const load = async () => {
     setError(null);
@@ -337,10 +355,18 @@ export default function AdminProjectsPage() {
   }, []);
 
   const startCreate = () => {
+    setChooserOpen(false);
     setCreating(true);
     setEditingSlug(null);
     setForm(emptyForm);
     setFormError(null);
+  };
+
+  const startImport = () => {
+    setChooserOpen(false);
+    setImportOpen(true);
+    setImportError(null);
+    setImportResult(null);
   };
 
   const startEdit = (p: ProjectSummary) => {
@@ -439,6 +465,43 @@ export default function AdminProjectsPage() {
     await load();
   };
 
+  const uploadThumbnail = async (file: File) => {
+    setUploadError(null);
+    if (!form.slug.trim()) {
+      setUploadError("Set a slug first, then upload the thumbnail.");
+      return;
+    }
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("slug", form.slug.trim());
+    const res = await fetch("/api/admin/upload-thumbnail", { method: "POST", body: fd });
+    const body = await res.json();
+    setUploading(false);
+    if (!res.ok) {
+      setUploadError(body.error ?? "Failed to upload image");
+      return;
+    }
+    setForm((f) => ({ ...f, thumbnail: body.path }));
+  };
+
+  const importCsv = async (file: File) => {
+    setImportError(null);
+    setImportResult(null);
+    setImporting(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/admin/projects/import", { method: "POST", body: fd });
+    const body = await res.json();
+    setImporting(false);
+    if (!res.ok) {
+      setImportError(body.error ?? "Failed to import CSV");
+      return;
+    }
+    setImportResult(body);
+    await load();
+  };
+
   const showForm = creating || !!editingSlug;
   const filtered = (projects ?? []).filter((p) => {
     if (!query.trim()) return true;
@@ -462,7 +525,7 @@ export default function AdminProjectsPage() {
           />
           <button
             type="button"
-            onClick={startCreate}
+            onClick={() => setChooserOpen(true)}
             className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand/90"
           >
             + New project
@@ -493,10 +556,166 @@ export default function AdminProjectsPage() {
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
 
+      {chooserOpen && (
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/30 px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-black/[0.08] bg-white p-6 shadow-xl">
+            <div className="mb-1 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-ink">Add project</h2>
+              <button
+                type="button"
+                onClick={() => setChooserOpen(false)}
+                className="flex size-7 items-center justify-center rounded-full text-ink-muted hover:bg-black/[0.05]"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <p className="mb-4 text-sm text-ink-muted">Choose how you&apos;d like to add one or more projects.</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={startCreate}
+                className="flex flex-col items-start gap-2.5 rounded-xl border border-black/[0.08] bg-white p-4 text-left transition hover:border-brand/40 hover:bg-brand-light/40"
+              >
+                <span className="flex size-9 items-center justify-center rounded-full bg-brand-light text-brand">
+                  <FilePenLine className="size-4.5" />
+                </span>
+                <span className="text-sm font-semibold text-ink">Fill manually</span>
+                <span className="text-xs text-ink-muted">Create one project by hand — title, catalog details, thumbnail, and status.</span>
+              </button>
+              <button
+                type="button"
+                onClick={startImport}
+                className="flex flex-col items-start gap-2.5 rounded-xl border border-black/[0.08] bg-white p-4 text-left transition hover:border-brand/40 hover:bg-brand-light/40"
+              >
+                <span className="flex size-9 items-center justify-center rounded-full bg-brand-light text-brand">
+                  <FileSpreadsheet className="size-4.5" />
+                </span>
+                <span className="text-sm font-semibold text-ink">Import from CSV</span>
+                <span className="text-xs text-ink-muted">Bulk-add multiple projects from a spreadsheet. Imported rows land in Archived for review.</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {importOpen && (
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/30 px-4 py-8">
+          <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-black/[0.08] bg-white shadow-xl">
+            <div className="flex shrink-0 items-center justify-between border-b border-black/[0.06] px-6 py-4">
+              <h2 className="text-base font-semibold text-ink">Import projects from CSV</h2>
+              <button
+                type="button"
+                onClick={() => setImportOpen(false)}
+                className="flex size-7 items-center justify-center rounded-full text-ink-muted hover:bg-black/[0.05]"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+              <p className="text-sm text-ink-muted">
+                Upload a CSV with one row per project. Catalog columns: <code>slug, title, shortDescription, category,
+                thumbnail, isPro, tags, level, rating, reviewCount, videoCount, duration, learners, instructorName,
+                instructorTitle</code>. Separate multiple tags with a semicolon.
+              </p>
+              <p className="mt-2 text-sm text-ink-muted">
+                Optional Learning Hub columns (leave blank to skip): <code>overviewDescription, whyThisProject,
+                problemStatement, businessProblemIndustry, businessProblemStat, architectureDescription,
+                architectureNotes, sampleSchema, apiAuthNote, apiExample, learningObjectivesClosing</code> for plain
+                text, plus JSON columns for structured data —
+                <code>whatYoullBuildJson, painPointsJson, targetUsersJson, learningObjectivesJson,
+                productRequirementsJson, userJourneyJson, edgeCasesJson, layersJson, serviceCommunicationJson,
+                databaseDesignJson, apiDocumentationJson, folderStructureJson, namingConventionsJson, faqsJson,
+                resourceFilesJson</code>. Together these cover every section shown in the Learning Hub sidebar —
+                Project Overview, Business Problem, Learning Objectives, Product Requirements, User Journey,
+                High-Level Architecture, Database Design, API Documentation, Folder Structure, Resources, and FAQs.
+                Discussion and Reviews stay editable only from Project Studio. The Hub&apos;s difficulty/duration/
+                students/instructor/tech-stack summary is filled in automatically from the catalog columns (level,
+                duration, learners, instructorName, instructorTitle, tags) — no separate columns needed for those.
+                See the template for the exact JSON shape each column expects.
+                Diagram/screenshot images aren&apos;t supported via CSV — upload those afterward from Project Studio.
+              </p>
+              <a
+                href="/api/admin/projects/import/template"
+                download="projects_import_template.csv"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-black/10 px-3 py-1.5 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+              >
+                <Download className="size-3.5" /> Download CSV template
+              </a>
+
+              <div className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+                New projects are always imported as <strong>Archived</strong> — review each one and publish it manually from
+                the Projects list once verified. Re-importing a slug that already exists updates its catalog details but
+                leaves its current publish status untouched.
+              </div>
+
+              <label className="mt-4 flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-black/15 bg-[#faf9f7] px-4 py-8 text-center hover:bg-black/[0.02]">
+                <UploadCloud className="size-6 text-ink-muted" />
+                <span className="text-sm font-semibold text-ink">{importing ? "Importing…" : "Click to choose a .csv file"}</span>
+                <input
+                  type="file"
+                  accept=".csv,text/csv"
+                  disabled={importing}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) importCsv(file);
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                />
+              </label>
+
+              {importError && <p className="mt-3 text-sm font-medium text-red-600">{importError}</p>}
+
+              {importResult && (
+                <div className="mt-4 rounded-lg border border-black/[0.08] bg-white">
+                  <div className="flex items-center gap-4 border-b border-black/[0.06] px-4 py-2.5 text-xs font-semibold">
+                    <span className="flex items-center gap-1.5 text-brand">
+                      <CheckCircle2 className="size-3.5" /> {importResult.created} created
+                    </span>
+                    <span className="text-ink-muted">{importResult.updated} updated</span>
+                    {importResult.skipped > 0 && (
+                      <span className="flex items-center gap-1.5 text-red-600">
+                        <AlertTriangle className="size-3.5" /> {importResult.skipped} skipped
+                      </span>
+                    )}
+                  </div>
+                  <ul className="max-h-48 overflow-y-auto px-4 py-2 text-xs">
+                    {importResult.results.map((r, i) => (
+                      <li key={i} className="flex flex-col gap-0.5 py-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-ink-muted">
+                            Row {r.row} · <span className="font-medium text-ink">{r.slug}</span>
+                          </span>
+                          <span className={r.status === "skipped" ? "font-semibold text-red-600" : "font-semibold text-brand"}>
+                            {r.status === "skipped" ? "Skipped" : r.status}
+                          </span>
+                        </div>
+                        {r.reason && <p className="text-[11px] text-ink-muted">{r.reason}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2 border-t border-black/[0.06] px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setImportOpen(false)}
+                className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-ink hover:bg-black/[0.03]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showForm && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-y-auto bg-black/30 px-4 py-8">
-          <div className="w-full max-w-3xl rounded-2xl border border-black/[0.08] bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/30 px-4 py-8">
+          <div className="flex max-h-[85vh] w-full max-w-3xl flex-col rounded-2xl border border-black/[0.08] bg-white shadow-xl">
+            <div className="flex shrink-0 items-center justify-between border-b border-black/[0.06] px-6 py-4">
               <h2 className="text-base font-semibold text-ink">{creating ? "New project" : `Edit: ${editingSlug}`}</h2>
               <button
                 type="button"
@@ -507,7 +726,16 @@ export default function AdminProjectsPage() {
               </button>
             </div>
 
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
+                Title
+                <input
+                  value={form.title}
+                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+                />
+              </label>
               <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
                 Slug {creating && <span className="font-normal text-ink-muted">(URL-safe, unique)</span>}
                 <input
@@ -516,14 +744,6 @@ export default function AdminProjectsPage() {
                   onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                   className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-sm text-ink outline-none focus:border-brand disabled:opacity-60"
                   placeholder="my-new-project"
-                />
-              </label>
-              <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
-                Title
-                <input
-                  value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-sm text-ink outline-none focus:border-brand"
                 />
               </label>
               <label className="col-span-full flex flex-col gap-1 text-xs font-semibold text-ink">
@@ -562,15 +782,60 @@ export default function AdminProjectsPage() {
                   ))}
                 </select>
               </label>
-              <label className="col-span-full flex flex-col gap-1 text-xs font-semibold text-ink">
-                Thumbnail path
-                <input
-                  value={form.thumbnail}
-                  onChange={(e) => setForm((f) => ({ ...f, thumbnail: e.target.value }))}
-                  placeholder="/images/projects/my-slug/thumbnail.png"
-                  className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-sm text-ink outline-none focus:border-brand"
-                />
-              </label>
+              <div className="col-span-full flex flex-col gap-2 text-xs font-semibold text-ink">
+                Thumbnail
+                <div className="flex items-center gap-4">
+                  {form.thumbnail ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={form.thumbnail}
+                      alt=""
+                      className="size-20 shrink-0 rounded-xl border border-black/[0.08] object-cover"
+                    />
+                  ) : (
+                    <div className="flex size-20 shrink-0 items-center justify-center rounded-xl border border-dashed border-black/15 bg-[#faf9f7] text-[11px] font-normal text-ink-muted">
+                      No image
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <label className="cursor-pointer rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-black/[0.03]">
+                        {uploading ? "Uploading…" : form.thumbnail ? "Change image" : "Upload image"}
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                          disabled={uploading}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadThumbnail(file);
+                            e.target.value = "";
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                      {form.thumbnail && (
+                        <button
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, thumbnail: "" }))}
+                          className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      value={form.thumbnail}
+                      onChange={(e) => setForm((f) => ({ ...f, thumbnail: e.target.value }))}
+                      placeholder="/images/projects/my-slug/thumbnail.png"
+                      className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-xs font-normal text-ink outline-none focus:border-brand"
+                    />
+                    <p className="text-[11px] font-normal text-ink-muted">
+                      Upload saves to <code>public/images/projects/&lt;slug&gt;/thumbnail.&lt;ext&gt;</code>, or paste a path/URL directly. PNG, JPG, WebP, GIF, SVG — max 5MB.
+                    </p>
+                    {uploadError && <p className="text-[11px] font-medium text-red-600">{uploadError}</p>}
+                  </div>
+                </div>
+              </div>
               <label className="col-span-full flex flex-col gap-1 text-xs font-semibold text-ink">
                 Tags (comma-separated)
                 <input
@@ -671,8 +936,9 @@ export default function AdminProjectsPage() {
             </div>
 
             {formError && <p className="mt-3 text-sm font-medium text-red-600">{formError}</p>}
+            </div>
 
-            <div className="mt-5 flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2 border-t border-black/[0.06] px-6 py-4">
               <button
                 type="button"
                 disabled={saving}

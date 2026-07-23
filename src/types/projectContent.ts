@@ -43,13 +43,20 @@ export interface HubContent {
     serviceCommunication: string[];
     layers: Record<string, string[]>;
     notes: string;
+    // Optional uploaded architecture diagram image, shown alongside the
+    // text description (e.g. a system diagram exported from Figma/Excalidraw).
+    diagramUrl?: string;
   };
   databaseDesign: { table: string; columns: string }[];
   sampleSchema: string;
+  // Optional uploaded ERD/schema diagram image for the Database Design section.
+  databaseDiagramUrl?: string;
   apiDocumentation: { method: string; path: string; description: string }[];
   apiAuthNote: string;
   apiExample: string;
   folderStructure: string[];
+  // Optional uploaded screenshot/diagram illustrating the folder structure.
+  folderStructureImageUrl?: string;
   namingConventions: { label: string; value: string }[];
   faqs: { question: string; answer: string }[];
 }

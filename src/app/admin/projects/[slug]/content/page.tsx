@@ -152,6 +152,83 @@ function StringArrayField({
   );
 }
 
+function ImageUploadField({
+  label,
+  hint,
+  value,
+  uploading,
+  uploadError,
+  onUpload,
+  onManualChange,
+  onRemove,
+}: {
+  label: string;
+  hint?: string;
+  value: string | undefined;
+  uploading: boolean;
+  uploadError: string | null;
+  onUpload: (file: File) => void;
+  onManualChange: (v: string) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2 text-xs font-semibold text-ink">
+      {label} {hint && <span className="font-normal text-ink-muted">{hint}</span>}
+      <div className="flex items-center gap-4">
+        {value ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={value}
+            alt=""
+            className="size-20 shrink-0 rounded-xl border border-black/[0.08] object-cover"
+          />
+        ) : (
+          <div className="flex size-20 shrink-0 items-center justify-center rounded-xl border border-dashed border-black/15 bg-[#faf9f7] text-[11px] font-normal text-ink-muted">
+            No image
+          </div>
+        )}
+        <div className="flex flex-1 flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <label className="cursor-pointer rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-black/[0.03]">
+              {uploading ? "Uploading…" : value ? "Change image" : "Upload image"}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                disabled={uploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onUpload(file);
+                  e.target.value = "";
+                }}
+                className="hidden"
+              />
+            </label>
+            {value && (
+              <button
+                type="button"
+                onClick={onRemove}
+                className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          <input
+            value={value ?? ""}
+            onChange={(e) => onManualChange(e.target.value)}
+            placeholder="/images/projects/my-slug/diagram.png"
+            className={`text-xs font-normal ${inputClass}`}
+          />
+          <p className="text-[11px] font-normal text-ink-muted">
+            Upload saves to <code>public/images/projects/&lt;slug&gt;/…</code>, or paste a path/URL directly. PNG, JPG, WebP, GIF, SVG — max 8MB.
+          </p>
+          {uploadError && <p className="text-[11px] font-medium text-red-600">{uploadError}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ArrayEditor<T>({
   items,
   onChange,
@@ -635,6 +712,7 @@ export default function ProjectContentEditorPage() {
               setHub={setHub}
               saveState={saveStates.learningHub}
               onSave={() => save("learningHub", hub)}
+              slug={slug}
             />
           )}
           {activeTop === "courseContent" && (
@@ -680,20 +758,52 @@ export default function ProjectContentEditorPage() {
 // Learning Hub
 // ---------------------------------------------------------------------------
 
+type HubImageKind = "architecture-diagram" | "database-diagram" | "folder-structure";
+
 function LearningHubEditor({
   sub,
   hub,
   setHub,
   saveState,
   onSave,
+  slug,
 }: {
   sub: string;
   hub: HubContent;
   setHub: (h: HubContent) => void;
   saveState: SaveState;
   onSave: () => void;
+  slug: string;
 }) {
   const label = hubSections.find((s) => s.id === sub)?.label ?? "Learning Hub";
+
+  const [imageState, setImageState] = useState<
+    Record<HubImageKind, { uploading: boolean; error: string | null }>
+  >({
+    "architecture-diagram": { uploading: false, error: null },
+    "database-diagram": { uploading: false, error: null },
+    "folder-structure": { uploading: false, error: null },
+  });
+
+  async function uploadHubImage(kind: HubImageKind, file: File, onSuccess: (path: string) => void) {
+    setImageState((s) => ({ ...s, [kind]: { uploading: true, error: null } }));
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("slug", slug);
+      fd.append("kind", kind);
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setImageState((s) => ({ ...s, [kind]: { uploading: false, error: body.error ?? "Failed to upload image" } }));
+        return;
+      }
+      setImageState((s) => ({ ...s, [kind]: { uploading: false, error: null } }));
+      onSuccess(body.path);
+    } catch {
+      setImageState((s) => ({ ...s, [kind]: { uploading: false, error: "Network error while uploading" } }));
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -888,6 +998,19 @@ function LearningHubEditor({
 
       {sub === "architecture" && (
         <div className="flex flex-col gap-4">
+          <ImageUploadField
+            label="Architecture diagram (optional)"
+            value={hub.architecture.diagramUrl}
+            uploading={imageState["architecture-diagram"].uploading}
+            uploadError={imageState["architecture-diagram"].error}
+            onUpload={(file) =>
+              uploadHubImage("architecture-diagram", file, (path) =>
+                setHub({ ...hub, architecture: { ...hub.architecture, diagramUrl: path } })
+              )
+            }
+            onManualChange={(v) => setHub({ ...hub, architecture: { ...hub.architecture, diagramUrl: v } })}
+            onRemove={() => setHub({ ...hub, architecture: { ...hub.architecture, diagramUrl: "" } })}
+          />
           <Field
             label="Description"
             textarea
@@ -930,6 +1053,17 @@ function LearningHubEditor({
             />
           </div>
           <Field label="Sample schema (SQL)" textarea value={hub.sampleSchema} onChange={(v) => setHub({ ...hub, sampleSchema: v })} />
+          <ImageUploadField
+            label="Database ERD / schema diagram (optional)"
+            value={hub.databaseDiagramUrl}
+            uploading={imageState["database-diagram"].uploading}
+            uploadError={imageState["database-diagram"].error}
+            onUpload={(file) =>
+              uploadHubImage("database-diagram", file, (path) => setHub({ ...hub, databaseDiagramUrl: path }))
+            }
+            onManualChange={(v) => setHub({ ...hub, databaseDiagramUrl: v })}
+            onRemove={() => setHub({ ...hub, databaseDiagramUrl: "" })}
+          />
         </div>
       )}
 
@@ -959,6 +1093,17 @@ function LearningHubEditor({
 
       {sub === "folder-structure" && (
         <div className="flex flex-col gap-4">
+          <ImageUploadField
+            label="Folder structure screenshot (optional)"
+            value={hub.folderStructureImageUrl}
+            uploading={imageState["folder-structure"].uploading}
+            uploadError={imageState["folder-structure"].error}
+            onUpload={(file) =>
+              uploadHubImage("folder-structure", file, (path) => setHub({ ...hub, folderStructureImageUrl: path }))
+            }
+            onManualChange={(v) => setHub({ ...hub, folderStructureImageUrl: v })}
+            onRemove={() => setHub({ ...hub, folderStructureImageUrl: "" })}
+          />
           <StringArrayField label="Folder structure" value={hub.folderStructure} onChange={(folderStructure) => setHub({ ...hub, folderStructure })} />
           <div>
             <p className="mb-2 text-xs font-semibold text-ink">Naming conventions</p>
