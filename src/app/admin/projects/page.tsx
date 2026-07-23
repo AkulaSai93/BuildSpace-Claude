@@ -151,6 +151,14 @@ function statusLabel(status: ProjectSummary["publishStatus"]) {
   }
 }
 
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function useClickAway(onAway: () => void) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -327,6 +335,7 @@ export default function AdminProjectsPage() {
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [chooserOpen, setChooserOpen] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
@@ -360,6 +369,7 @@ export default function AdminProjectsPage() {
     setEditingSlug(null);
     setForm(emptyForm);
     setFormError(null);
+    setSlugTouched(false);
   };
 
   const startImport = () => {
@@ -468,7 +478,7 @@ export default function AdminProjectsPage() {
   const uploadThumbnail = async (file: File) => {
     setUploadError(null);
     if (!form.slug.trim()) {
-      setUploadError("Set a slug first, then upload the thumbnail.");
+      setUploadError("Enter a title (or slug) first so we know which folder to save the image to.");
       return;
     }
     setUploading(true);
@@ -732,16 +742,28 @@ export default function AdminProjectsPage() {
                 Title
                 <input
                   value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  onChange={(e) => {
+                    const title = e.target.value;
+                    setForm((f) => ({
+                      ...f,
+                      title,
+                      // Auto-fill the slug from the title while creating, until the
+                      // admin manually edits the slug field themselves.
+                      slug: creating && !slugTouched ? slugify(title) : f.slug,
+                    }));
+                  }}
                   className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-sm text-ink outline-none focus:border-brand"
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
-                Slug {creating && <span className="font-normal text-ink-muted">(URL-safe, unique)</span>}
+                Slug {creating && <span className="font-normal text-ink-muted">(auto-filled from title, URL-safe, unique — edit to override)</span>}
                 <input
                   value={form.slug}
                   disabled={!creating}
-                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                  onChange={(e) => {
+                    setSlugTouched(true);
+                    setForm((f) => ({ ...f, slug: slugify(e.target.value) }));
+                  }}
                   className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-sm text-ink outline-none focus:border-brand disabled:opacity-60"
                   placeholder="my-new-project"
                 />
