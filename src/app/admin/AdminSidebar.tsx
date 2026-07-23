@@ -20,7 +20,7 @@ import {
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutGrid },
-  { label: "Students", href: "/admin/students", icon: Users },
+  { label: "Users", href: "/admin/students", icon: Users },
   { label: "Projects", href: "/admin/projects", icon: FolderKanban },
   { label: "Mentors", href: "/admin/mentors", icon: GraduationCap },
   { label: "Certificates", href: "/admin/certificates", icon: Award },

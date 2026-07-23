@@ -114,7 +114,7 @@ export default async function AdminAnalyticsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-xl font-semibold text-ink">Analytics</h1>
+        <h1 className="text-2xl font-semibold text-brand">Analytics</h1>
         <p className="text-sm text-ink-muted">
           Deeper platform metrics across students, projects, certificates, credits, and mentors. All charts below are
           hand-rolled from live table data (no charting library is installed in this project).

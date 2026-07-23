@@ -115,7 +115,7 @@ export default function AdminCertificatesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-ink">Certificates</h1>
+      <h1 className="text-2xl font-semibold text-brand">Certificates</h1>
 
       <section className="rounded-xl border border-black/[0.08] bg-white p-5">
         <h2 className="mb-3 text-sm font-semibold text-ink">Templates</h2>

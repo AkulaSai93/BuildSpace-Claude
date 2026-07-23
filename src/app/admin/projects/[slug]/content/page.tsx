@@ -546,7 +546,7 @@ export default function ProjectContentEditorPage() {
         <Link href="/admin/projects" className="text-sm font-medium text-brand hover:underline">
           ← Back to projects
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-ink">Project Studio</h1>
+        <h1 className="mt-1 text-2xl font-semibold text-brand">Project Studio</h1>
         <p className="text-sm text-ink-muted">{slug}</p>
       </div>
 

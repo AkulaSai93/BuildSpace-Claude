@@ -110,7 +110,7 @@ export default function AdminReportsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-ink">Reports</h1>
+        <h1 className="text-2xl font-semibold text-brand">Reports</h1>
         <p className="text-sm text-ink-muted">
           Generate CSV exports from live platform data. Exports are built entirely in the browser — no Excel or PDF
           export is available in this build, only CSV.

@@ -43,7 +43,7 @@ export default async function AdminDashboardPage() {
   const activeMentors = mentors.filter((m) => m.active).length;
 
   const stats: DashboardStat[] = [
-    { id: "students", label: "Total Students", value: String(totalStudents), iconBg: "bg-brand-light text-brand", icon: <Users strokeWidth={1.75} className="size-4" /> },
+    { id: "students", label: "Total Users", value: String(totalStudents), iconBg: "bg-brand-light text-brand", icon: <Users strokeWidth={1.75} className="size-4" /> },
     { id: "active-today", label: "Active Today", value: String(activeToday), iconBg: "bg-[#eff6ff] text-blue-600", icon: <UserCheck strokeWidth={1.75} className="size-4" /> },
     { id: "published", label: "Projects Published", value: String(published), iconBg: "bg-[#eef2ff] text-indigo-600", icon: <FolderKanban strokeWidth={1.75} className="size-4" /> },
     { id: "drafts", label: "Draft Projects", value: String(drafts), iconBg: "bg-[#fffbeb] text-amber-600", icon: <FileEdit strokeWidth={1.75} className="size-4" /> },
@@ -54,6 +54,11 @@ export default async function AdminDashboardPage() {
     { id: "standard-certs", label: "Standard Certificates", value: String(standardCerts), iconBg: "bg-sky-50 text-sky-600", icon: <Award strokeWidth={1.75} className="size-4" /> },
     { id: "mentors", label: "Active Mentors", value: String(activeMentors), iconBg: "bg-teal-50 text-teal-600", icon: <GraduationCap strokeWidth={1.75} className="size-4" /> },
   ];
+
+  const byCategory = new Map<string, number>();
+  for (const p of projects) byCategory.set(p.category, (byCategory.get(p.category) ?? 0) + 1);
+  const categoryBreakdown = [...byCategory.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxCategory = Math.max(1, ...categoryBreakdown.map(([, n]) => n));
 
   const recentSignups = [...authUsers]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -86,11 +91,11 @@ export default async function AdminDashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-xl font-semibold text-ink">Dashboard</h1>
-        <p className="text-sm text-ink-muted">Platform health across students, projects, certificates, and mentors.</p>
+        <h1 className="text-2xl font-semibold text-brand">Dashboard</h1>
+        <p className="text-sm text-ink-muted">Platform health across users, projects, certificates, and mentors.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {stats.map((stat) => (
           <StatCard key={stat.id} stat={stat} />
         ))}
@@ -99,23 +104,41 @@ export default async function AdminDashboardPage() {
         &ldquo;Projects Started/Completed Today&rdquo; need an analytics events log to populate — shown as &ldquo;—&rdquo; until that&apos;s wired up (see Analytics module).
       </p>
 
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-ink">Student Growth (last 7 days)</h2>
-        <div className="flex h-32 items-end gap-3">
-          {days.map((d) => (
-            <div key={d.label} className="flex flex-1 flex-col items-center gap-1.5">
-              <div
-                className="w-full rounded-t-md bg-brand/80"
-                style={{ height: `${Math.max(4, (d.count / maxDay) * 100)}%` }}
-                title={`${d.count} signups`}
-              />
-              <span className="text-[10px] text-ink-muted">{d.label}</span>
-            </div>
-          ))}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5 xl:col-span-2">
+          <h2 className="mb-4 text-sm font-semibold text-ink">User Growth (last 7 days)</h2>
+          <div className="flex h-40 items-end gap-3">
+            {days.map((d) => (
+              <div key={d.label} className="flex flex-1 flex-col items-center gap-1.5">
+                <div
+                  className="w-full rounded-t-md bg-brand/80"
+                  style={{ height: `${Math.max(4, (d.count / maxDay) * 100)}%` }}
+                  title={`${d.count} signups`}
+                />
+                <span className="text-[10px] text-ink-muted">{d.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+          <h2 className="mb-4 text-sm font-semibold text-ink">Projects by category</h2>
+          <div className="flex flex-col gap-3">
+            {categoryBreakdown.map(([category, count]) => (
+              <div key={category} className="flex items-center gap-3">
+                <span className="w-24 shrink-0 truncate text-xs text-ink-muted">{category}</span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/[0.04]">
+                  <div className="h-full rounded-full bg-brand/70" style={{ width: `${(count / maxCategory) * 100}%` }} />
+                </div>
+                <span className="w-5 shrink-0 text-right text-xs font-semibold text-ink">{count}</span>
+              </div>
+            ))}
+            {categoryBreakdown.length === 0 && <p className="text-sm text-ink-muted">No projects yet.</p>}
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl border border-black/[0.08] bg-white p-5">
           <h2 className="mb-4 text-sm font-semibold text-ink">Recent signups</h2>
           <ul className="flex flex-col gap-3">
@@ -125,7 +148,7 @@ export default async function AdminDashboardPage() {
                 <span className="shrink-0 text-ink-muted">{formatDate(u.created_at)}</span>
               </li>
             ))}
-            {recentSignups.length === 0 && <li className="text-sm text-ink-muted">No students yet.</li>}
+            {recentSignups.length === 0 && <li className="text-sm text-ink-muted">No users yet.</li>}
           </ul>
         </div>
 
@@ -174,6 +197,14 @@ export default async function AdminDashboardPage() {
           </ul>
         </div>
       </div>
+
+      <p className="text-xs text-ink-muted">
+        Looking for deeper breakdowns (signups over longer ranges, credits, mentor sessions)? See the full{" "}
+        <a href="/admin/analytics" className="font-semibold text-brand hover:underline">
+          Analytics
+        </a>{" "}
+        module.
+      </p>
     </div>
   );
 }

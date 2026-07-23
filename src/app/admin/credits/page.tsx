@@ -50,7 +50,7 @@ export default function AdminCreditsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold text-ink">Credits & XP Rules</h1>
+      <h1 className="text-2xl font-semibold text-brand">Credits & XP Rules</h1>
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
       {!rules && !error && <p className="text-sm text-ink-muted">Loading…</p>}

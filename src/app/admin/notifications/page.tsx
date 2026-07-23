@@ -140,7 +140,7 @@ export default function AdminNotificationsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-ink">Notifications</h1>
+        <h1 className="text-2xl font-semibold text-brand">Notifications</h1>
         <button
           type="button"
           onClick={startCreate}

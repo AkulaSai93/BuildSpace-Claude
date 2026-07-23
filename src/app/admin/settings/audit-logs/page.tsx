@@ -37,7 +37,7 @@ export default function AdminAuditLogsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-ink">Audit Logs</h1>
+        <h1 className="text-2xl font-semibold text-brand">Audit Logs</h1>
         <p className="text-sm text-ink-muted">
           Read-only history of admin mutations across every module. Populated automatically whenever an admin
           create/update/delete route runs.

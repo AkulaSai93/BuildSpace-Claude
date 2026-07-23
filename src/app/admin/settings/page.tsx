@@ -185,7 +185,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-ink">Settings</h1>
+        <h1 className="text-2xl font-semibold text-brand">Settings</h1>
         <p className="text-sm text-ink-muted">General platform configuration.</p>
       </div>
 

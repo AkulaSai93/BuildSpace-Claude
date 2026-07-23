@@ -175,7 +175,7 @@ export default function AdminMentorsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-ink">Mentors</h1>
+        <h1 className="text-2xl font-semibold text-brand">Mentors</h1>
         <button
           type="button"
           onClick={startCreate}

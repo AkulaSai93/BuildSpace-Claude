@@ -66,7 +66,7 @@ export default function AdminCommunityReportsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold text-ink">Community</h1>
+      <h1 className="text-2xl font-semibold text-brand">Community</h1>
       <CommunityTabs />
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}

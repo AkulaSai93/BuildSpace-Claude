@@ -64,7 +64,7 @@ export default function AdminRolesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-ink">Roles & Permissions</h1>
+        <h1 className="text-2xl font-semibold text-brand">Roles & Permissions</h1>
         <p className="text-sm text-ink-muted">Manage role definitions and their permission flags.</p>
       </div>
 
