@@ -1,4 +1,4 @@
-import { techStackDetail } from "@/lib/course-content";
+import type { CourseContentData } from "@/types/projectContent";
 
 const avatarColors: Record<string, string> = {
   Framework: "bg-ink text-white",
@@ -17,7 +17,7 @@ const difficultyStyles: Record<string, string> = {
   Advanced: "bg-red-50 text-red-600",
 };
 
-export function TechStackTab() {
+export function TechStackTab({ techStackDetail }: { techStackDetail: CourseContentData["techStackDetail"] }) {
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-base font-semibold text-ink">Tech Stack</h2>

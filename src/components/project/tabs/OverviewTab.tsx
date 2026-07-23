@@ -1,12 +1,12 @@
-import {
+import type { CourseContentData } from "@/types/projectContent";
+import { CheckCircleIcon, PlayIcon } from "@/components/dashboard/icons";
+
+export function OverviewTab({
   learningOutcomes,
   prerequisites,
   systemArchitecture,
   whatYoullBuild,
-} from "@/lib/course-content";
-import { CheckCircleIcon, PlayIcon } from "@/components/dashboard/icons";
-
-export function OverviewTab() {
+}: Pick<CourseContentData, "learningOutcomes" | "prerequisites" | "systemArchitecture" | "whatYoullBuild">) {
   return (
     <div className="flex flex-col gap-8">
       <section>

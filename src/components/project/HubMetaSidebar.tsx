@@ -1,5 +1,5 @@
 import { hubSections } from "@/lib/learning-hub-data";
-import type { HubContent } from "@/lib/learning-hub-data";
+import type { HubContent } from "@/types/projectContent";
 
 export function HubMetaSidebar({
   content,

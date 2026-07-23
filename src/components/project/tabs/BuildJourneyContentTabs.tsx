@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  businessProblemParagraph,
-  learningOutcomes,
-  prerequisites,
-  systemArchitecture,
-  techStackDetail,
-  whatYoullBuild,
-} from "@/lib/course-content";
+import { useEffect, useState } from "react";
+import type { ProjectContent } from "@/types/projectContent";
 import { ResourcesTab } from "@/components/project/tabs/ResourcesTab";
 import { InterviewPrepTab } from "@/components/project/tabs/InterviewPrepTab";
 import { DiscussionTab } from "@/components/project/tabs/DiscussionTab";
@@ -40,7 +34,8 @@ const difficultyStyles: Record<string, string> = {
   Advanced: "bg-red-50 text-red-600",
 };
 
-function OverviewSubTab() {
+function OverviewSubTab({ courseContent }: { courseContent: ProjectContent["courseContent"] }) {
+  const { businessProblemParagraph, whatYoullBuild, systemArchitecture, learningOutcomes, prerequisites } = courseContent;
   return (
     <div className="flex flex-col gap-8">
       <section>
@@ -107,7 +102,7 @@ function OverviewSubTab() {
   );
 }
 
-function TechStackSubTab() {
+function TechStackSubTab({ techStackDetail }: { techStackDetail: ProjectContent["courseContent"]["techStackDetail"] }) {
   const cards = techStackDetail.slice(0, 6);
 
   return (
@@ -155,17 +150,63 @@ function TechStackSubTab() {
   );
 }
 
-export function BuildJourneyContentTabs({ initialSubTab = "Overview" }: { initialSubTab?: BuildJourneySubTab }) {
+export function BuildJourneyContentTabs({
+  initialSubTab = "Overview",
+  slug,
+}: {
+  initialSubTab?: BuildJourneySubTab;
+  slug: string;
+}) {
   const subTab = initialSubTab;
+  const [content, setContent] = useState<ProjectContent | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setContent(null);
+    setLoadError(null);
+    fetch(`/api/project-content/${encodeURIComponent(slug)}`, { cache: "no-store" })
+      .then(async (res) => {
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error ?? `Failed to load content (${res.status})`);
+        return body.content as ProjectContent;
+      })
+      .then((c) => {
+        if (!cancelled) setContent(c);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Failed to load course content");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-6 py-16 text-center">
+        <p className="text-sm font-semibold text-red-700">Couldn&apos;t load content</p>
+        <p className="max-w-sm text-xs text-red-600">{loadError}</p>
+      </div>
+    );
+  }
+
+  if (!content) {
+    return (
+      <div className="flex items-center justify-center rounded-xl border border-black/[0.08] bg-white px-6 py-24 text-sm text-ink-muted">
+        Loading…
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
-      {subTab === "Overview" && <OverviewSubTab />}
-      {subTab === "Tech Stack" && <TechStackSubTab />}
-      {subTab === "Resources" && <ResourcesTab />}
-      {subTab === "Interview Prep" && <InterviewPrepTab />}
-      {subTab === "Discussion" && <DiscussionTab />}
-      {subTab === "Reviews" && <ReviewsTab />}
+      {subTab === "Overview" && <OverviewSubTab courseContent={content.courseContent} />}
+      {subTab === "Tech Stack" && <TechStackSubTab techStackDetail={content.courseContent.techStackDetail} />}
+      {subTab === "Resources" && <ResourcesTab resourceFiles={content.courseContent.resourceFiles} />}
+      {subTab === "Interview Prep" && <InterviewPrepTab interviewQuestions={content.courseContent.interviewQuestions} />}
+      {subTab === "Discussion" && <DiscussionTab comments={content.discussion.comments} />}
+      {subTab === "Reviews" && <ReviewsTab summary={content.reviews.summary} reviews={content.reviews.reviews} />}
     </div>
   );
 }

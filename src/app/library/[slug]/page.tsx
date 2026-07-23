@@ -301,9 +301,9 @@ export default function ProjectDetailPage() {
             )}
             {((projectSubmitted && (activeTab === "Overview" || activeTab === "Tech Stack" || activeTab === "Resources")) ||
               sharedTabs.includes(activeTab as (typeof sharedTabs)[number])) && (
-              <BuildJourneyContentTabs initialSubTab={activeTab as BuildJourneySubTab} />
+              <BuildJourneyContentTabs initialSubTab={activeTab as BuildJourneySubTab} slug={project.slug} />
             )}
-            {activeTab === "Pro Solution" && <ProSolutionTab unlocked={projectSubmitted} />}
+            {activeTab === "Pro Solution" && <ProSolutionTab unlocked={projectSubmitted} slug={project.slug} />}
           </div>
         </main>
 

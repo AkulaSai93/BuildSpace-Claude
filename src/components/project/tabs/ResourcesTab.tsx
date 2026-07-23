@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { resourceCategories, resourceFiles, type ResourceCategory } from "@/lib/course-content";
+import { resourceCategories, type ResourceCategory } from "@/lib/course-content";
+import type { CourseContentData } from "@/types/projectContent";
 import { DownloadIcon, EyeIcon } from "@/components/dashboard/icons";
 
 const typeColors: Record<string, string> = {
@@ -15,7 +16,7 @@ const typeColors: Record<string, string> = {
   ENV: "bg-emerald-50 text-emerald-600",
 };
 
-export function ResourcesTab() {
+export function ResourcesTab({ resourceFiles }: { resourceFiles: CourseContentData["resourceFiles"] }) {
   const [category, setCategory] = useState<ResourceCategory>("All");
 
   const filtered = useMemo(

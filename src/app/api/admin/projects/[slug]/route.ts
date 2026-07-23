@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { updateProject, deleteProject, getProject } from "@/lib/projectsData";
+import { deleteProjectContent } from "@/lib/projectContentData";
 import type { ProjectSummary } from "@/types/library";
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -35,6 +36,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
   try {
     await deleteProject(slug);
+    await deleteProjectContent(slug);
     return NextResponse.json({ ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to delete project";

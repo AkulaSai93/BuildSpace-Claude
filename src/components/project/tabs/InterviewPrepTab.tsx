@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { interviewQuestions } from "@/lib/course-content";
+import type { CourseContentData } from "@/types/projectContent";
 import { ChevronDownIcon, TargetIcon } from "@/components/dashboard/icons";
 
-export function InterviewPrepTab() {
+export function InterviewPrepTab({
+  interviewQuestions,
+}: {
+  interviewQuestions: CourseContentData["interviewQuestions"];
+}) {
   const [openSection, setOpenSection] = useState("Project-Specific Questions");
   const sections = Object.entries(interviewQuestions);
 

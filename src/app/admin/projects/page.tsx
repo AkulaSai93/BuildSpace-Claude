@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { ProjectSummary } from "@/types/library";
 
 const categories = [
@@ -402,6 +403,12 @@ export default function AdminProjectsPage() {
                   <td className="px-4 py-3">{p.isPro ? "Pro" : "Free"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/projects/${encodeURIComponent(p.slug)}/content`}
+                        className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+                      >
+                        Edit content
+                      </Link>
                       <button
                         type="button"
                         onClick={() => startEdit(p)}

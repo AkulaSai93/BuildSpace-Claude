@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProjectSummary } from "@/types/library";
+import type { HubContent, ProjectContent } from "@/types/projectContent";
 import { LearningHubSidebar } from "@/components/project/LearningHubSidebar";
 import { HubMetaSidebar } from "@/components/project/HubMetaSidebar";
 import { ResourcesTab } from "@/components/project/tabs/ResourcesTab";
-import { getHubContent, hubSections } from "@/lib/learning-hub-data";
+import { hubSections } from "@/lib/learning-hub-data";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
@@ -31,8 +32,30 @@ export function LearningHubTab({
   const [activeSection, setActiveSection] = useState("overview");
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [openFaq, setOpenFaq] = useState<string | null>(null);
+  const [fullContent, setFullContent] = useState<ProjectContent | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const content: HubContent | null = fullContent?.learningHub ?? null;
 
-  const content = useMemo(() => getHubContent(project.slug), [project.slug]);
+  useEffect(() => {
+    let cancelled = false;
+    setFullContent(null);
+    setLoadError(null);
+    fetch(`/api/project-content/${encodeURIComponent(project.slug)}`, { cache: "no-store" })
+      .then(async (res) => {
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error ?? `Failed to load content (${res.status})`);
+        return body.content as ProjectContent;
+      })
+      .then((c) => {
+        if (!cancelled) setFullContent(c);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Failed to load Learning Hub content");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [project.slug]);
 
   const requiredSections = hubSections.filter((s) => s.required);
   const requiredRemaining = requiredSections.filter((s) => !completed.has(s.id));
@@ -45,6 +68,23 @@ export function LearningHubTab({
       setActiveSection(hubSections[idx + 1].id);
     }
   };
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-6 py-16 text-center">
+        <p className="text-sm font-semibold text-red-700">Couldn&apos;t load Learning Hub content</p>
+        <p className="max-w-sm text-xs text-red-600">{loadError}</p>
+      </div>
+    );
+  }
+
+  if (!content) {
+    return (
+      <div className="flex items-center justify-center rounded-xl border border-black/[0.08] bg-white px-6 py-24 text-sm text-ink-muted">
+        Loading Learning Hub…
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full">
@@ -397,7 +437,7 @@ export function LearningHubTab({
           <section className="flex flex-col gap-4">
             <h2 className="text-lg font-semibold text-ink">Resources</h2>
             <p className="text-sm text-ink-muted">All project assets available for download. Use these to deeply understand the system before building.</p>
-            <ResourcesTab />
+            <ResourcesTab resourceFiles={fullContent!.courseContent.resourceFiles} />
           </section>
         )}
 

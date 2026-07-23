@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { reviewSummary, reviews } from "@/lib/course-content";
+import type { ReviewsData } from "@/types/projectContent";
 import { StarIcon, ThumbsUpIcon } from "@/components/dashboard/icons";
 
 function Avatar({ initials }: { initials: string }) {
@@ -22,7 +22,7 @@ function Stars({ rating, size = "size-3.5" }: { rating: number; size?: string })
   );
 }
 
-export function ReviewsTab() {
+export function ReviewsTab({ summary: reviewSummary, reviews }: { summary: ReviewsData["summary"]; reviews: ReviewsData["reviews"] }) {
   const [showForm, setShowForm] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);

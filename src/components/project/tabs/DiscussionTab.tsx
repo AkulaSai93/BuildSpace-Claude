@@ -1,4 +1,4 @@
-import { discussionComments } from "@/lib/course-content";
+import type { DiscussionData } from "@/types/projectContent";
 import { ThumbsUpIcon } from "@/components/dashboard/icons";
 
 function Avatar({ initials }: { initials: string }) {
@@ -9,7 +9,7 @@ function Avatar({ initials }: { initials: string }) {
   );
 }
 
-export function DiscussionTab() {
+export function DiscussionTab({ comments: discussionComments }: { comments: DiscussionData["comments"] }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex gap-3 rounded-xl border border-black/[0.08] bg-white p-4">

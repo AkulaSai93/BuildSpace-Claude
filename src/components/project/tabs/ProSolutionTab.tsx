@@ -1,6 +1,35 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import type { ProSolutionData } from "@/types/projectContent";
 import { BookmarkIcon, CheckCircleIcon, ClockIcon, PlayIcon } from "@/components/dashboard/icons";
 
-export function ProSolutionTab({ unlocked = false }: { unlocked?: boolean }) {
+export function ProSolutionTab({ unlocked = false, slug }: { unlocked?: boolean; slug: string }) {
+  const [data, setData] = useState<ProSolutionData | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!unlocked) return;
+    let cancelled = false;
+    setData(null);
+    setLoadError(null);
+    fetch(`/api/project-content/${encodeURIComponent(slug)}`, { cache: "no-store" })
+      .then(async (res) => {
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error ?? `Failed to load content (${res.status})`);
+        return body.content.proSolution as ProSolutionData;
+      })
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Failed to load Pro Solution content");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [unlocked, slug]);
+
   if (!unlocked) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-xl border border-black/[0.08] bg-white px-6 py-16 text-center">
@@ -22,11 +51,24 @@ export function ProSolutionTab({ unlocked = false }: { unlocked?: boolean }) {
     );
   }
 
-  const walkthroughs = [
-    { title: "Cart & Products API — architecture walkthrough", duration: "24:10", desc: "How the reference solution structures the cart, cart_items, and product tables." },
-    { title: "Inventory locking & concurrency", duration: "18:32", desc: "Row-level locking vs optimistic concurrency, and why the reference solution picked one." },
-    { title: "Deployment & monitoring walkthrough", duration: "15:47", desc: "Instructor commentary on the production deploy, logging, and health-check setup." },
-  ];
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-6 py-16 text-center">
+        <p className="text-sm font-semibold text-red-700">Couldn&apos;t load Pro Solution content</p>
+        <p className="max-w-sm text-xs text-red-600">{loadError}</p>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center rounded-xl border border-black/[0.08] bg-white px-6 py-24 text-sm text-ink-muted">
+        Loading Pro Solution…
+      </div>
+    );
+  }
+
+  const walkthroughs = data.walkthroughs;
 
   return (
     <div className="flex flex-col gap-5">
