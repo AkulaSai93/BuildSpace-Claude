@@ -73,7 +73,7 @@ export function CourseMetaSidebar({ project }: { project: ProjectSummary }) {
             <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-stone-200">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/source/Image (Alex Chen).png"
+                src="/images/Image (Alex Chen).png"
                 alt={project.instructor.name}
                 className="h-full w-full object-cover"
               />

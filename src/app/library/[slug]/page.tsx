@@ -219,7 +219,7 @@ export default function ProjectDetailPage() {
                 <div className="relative flex aspect-video w-full items-center justify-center bg-black">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/images/source/Image (Video preview).png"
+                    src="/images/Image (Video preview).png"
                     alt="Video preview"
                     className="absolute inset-0 h-full w-full object-cover"
                   />

@@ -66,7 +66,7 @@ export function HubMetaSidebar({
           {content.meta.instructor.name === "Alex Chen" ? (
             <div className="relative size-8 shrink-0 overflow-hidden rounded-full bg-stone-200">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/source/Image (Alex Chen).png" alt={content.meta.instructor.name} className="h-full w-full object-cover" />
+              <img src="/images/Image (Alex Chen).png" alt={content.meta.instructor.name} className="h-full w-full object-cover" />
             </div>
           ) : (
             <div className="size-8 shrink-0 rounded-full bg-gradient-to-br from-stone-300 to-stone-400" />

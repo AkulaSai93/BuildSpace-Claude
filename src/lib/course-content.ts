@@ -63,19 +63,19 @@ export const relatedProjects = [
     title: "Real-Time Chat App with Socket.io, Redis & React",
     duration: "38h 15m",
     slug: "realtime-chat",
-    thumbnail: "/images/Image (Real-Time Chat App with Socket.io, Redis & React).png",
+    thumbnail: "/images/projects/realtime-chat/thumbnail.png",
   },
   {
     title: "AI-Powered Resume Builder with OpenAI & FastAPI",
     duration: "28h 45m",
     slug: "ai-resume-builder",
-    thumbnail: "/images/Image (AI-Powered Resume Builder with OpenAI & FastAPI).png",
+    thumbnail: "/images/projects/ai-resume-builder/thumbnail.png",
   },
   {
     title: "Netflix Clone with React, Firebase & TMDb API",
     duration: "22h 10m",
     slug: "netflix-clone",
-    thumbnail: "/images/Image (Netflix Clone with React, Firebase & TMDb API).png",
+    thumbnail: "/images/projects/netflix-clone/thumbnail.png",
   },
 ];
 

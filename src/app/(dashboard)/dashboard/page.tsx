@@ -3,22 +3,29 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/supabaseAuth";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
+import { listProjects } from "@/lib/projectsData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ProjectProgressCard } from "@/components/dashboard/ProjectProgressCard";
 import { CourseCard } from "@/components/dashboard/CourseCard";
-import { ArrowRightIcon, CompassIcon, FlameIcon } from "@/components/dashboard/icons";
-import {
-  dashboardStats,
-  inProgressProjects,
-  trendingCourses,
-} from "@/lib/dashboard-data";
+import { ArrowRightIcon, CompassIcon, FlameIcon, PlayIcon, ClockIcon, DownloadIcon, ChatIcon } from "@/components/dashboard/icons";
+import type { InProgressProject, TrendingCourse, DashboardStat } from "@/types/dashboard";
 
 const today = new Date().toLocaleDateString("en-US", {
   weekday: "long",
   month: "long",
   day: "numeric",
 });
+
+// Placeholder activity metrics — not tied to real usage tracking yet, so
+// these stay static for now (unlike the project cards below, which now come
+// straight from Supabase instead of a hardcoded file).
+const dashboardStats: DashboardStat[] = [
+  { id: "projects-started", label: "Projects Started", value: "3", iconBg: "bg-[#ecfdf5] text-brand", icon: <PlayIcon className="size-4" /> },
+  { id: "hours-building", label: "Hours Building", value: "47h", iconBg: "bg-[#eff6ff] text-blue-600", icon: <ClockIcon className="size-4" /> },
+  { id: "files-downloaded", label: "Files Downloaded", value: "28", iconBg: "bg-[#f5f3ff] text-violet-600", icon: <DownloadIcon className="size-4" /> },
+  { id: "discussions", label: "Discussions", value: "12", iconBg: "bg-[#fffbeb] text-amber-600", icon: <ChatIcon className="size-4" /> },
+];
 
 export default async function DashboardPage() {
   const accessToken = (await cookies()).get(ACCESS_COOKIE)?.value;
@@ -30,6 +37,34 @@ export default async function DashboardPage() {
   } catch {
     redirect("/login");
   }
+
+  const projects = await listProjects();
+
+  const inProgressProjects: InProgressProject[] = projects
+    .filter((p) => p.status === "in-progress")
+    .map((p) => ({
+      id: p.slug,
+      title: p.title,
+      thumbnail: p.thumbnail,
+      percentComplete: p.progress?.percentComplete ?? 0,
+      estimatedWeeks: p.progress?.weeksLeft ?? 0,
+      tags: p.tags.slice(0, 2),
+    }));
+
+  const trendingCourses: TrendingCourse[] = projects.slice(0, 6).map((p) => ({
+    id: p.slug,
+    title: p.title,
+    description: p.shortDescription,
+    thumbnail: p.thumbnail,
+    isPro: p.isPro,
+    tags: p.tags,
+    rating: p.rating,
+    reviewCount: p.reviewCount,
+    level: p.level,
+    videoCount: p.videoCount,
+    duration: p.duration,
+    learners: p.learners,
+  }));
 
   return (
     <div className="min-h-screen bg-[#faf9f7]">
@@ -75,6 +110,9 @@ export default async function DashboardPage() {
                 <ProjectProgressCard project={project} />
               </Link>
             ))}
+            {inProgressProjects.length === 0 && (
+              <p className="text-sm text-ink-muted">No projects in progress yet — explore the library to start one.</p>
+            )}
           </div>
         </section>
 
