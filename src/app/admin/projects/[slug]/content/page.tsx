@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type {
   ProjectContent,
@@ -13,6 +13,8 @@ import type {
   ReviewsData,
 } from "@/types/projectContent";
 import { hubSections } from "@/lib/learning-hub-data";
+import type { ProjectSummary } from "@/types/library";
+import type { Certificate } from "@/types/studio";
 
 // ---------------------------------------------------------------------------
 // Generic form pieces (styled to match src/app/admin/projects/page.tsx)
@@ -349,14 +351,25 @@ function SaveBar({ state, onSave, label }: { state: SaveState; onSave: () => voi
 
 const resourceCategories = ["Planning", "Architecture", "Database", "API", "Design", "Code", "DevOps"] as const;
 
-type TopSection = "learningHub" | "courseContent" | "discussion" | "reviews" | "proSolution";
+type TopSection =
+  | "overview"
+  | "learningHub"
+  | "courseContent"
+  | "discussion"
+  | "reviews"
+  | "proSolution"
+  | "analytics"
+  | "settings";
 
 const topSections: { id: TopSection; label: string }[] = [
+  { id: "overview", label: "Overview" },
   { id: "learningHub", label: "Learning Hub" },
   { id: "courseContent", label: "Course Content" },
   { id: "discussion", label: "Discussion" },
   { id: "reviews", label: "Reviews" },
   { id: "proSolution", label: "Pro Solution" },
+  { id: "analytics", label: "Analytics" },
+  { id: "settings", label: "Settings" },
 ];
 
 const courseContentSubs = [
@@ -368,6 +381,7 @@ const courseContentSubs = [
 
 export default function ProjectContentEditorPage() {
   const params = useParams<{ slug: string }>();
+  const router = useRouter();
   const slug = params.slug;
 
   const [content, setContent] = useState<ProjectContent | null>(null);
@@ -379,7 +393,18 @@ export default function ProjectContentEditorPage() {
   const [discussion, setDiscussion] = useState<DiscussionData | null>(null);
   const [reviews, setReviews] = useState<ReviewsData | null>(null);
 
-  const [activeTop, setActiveTop] = useState<TopSection>("learningHub");
+  const [project, setProject] = useState<ProjectSummary | null>(null);
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [projectError, setProjectError] = useState<string | null>(null);
+
+  const [certificates, setCertificates] = useState<Certificate[] | null>(null);
+  const [certError, setCertError] = useState<string | null>(null);
+
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [activeTop, setActiveTop] = useState<TopSection>("overview");
   const [activeHubSub, setActiveHubSub] = useState<string>(hubSections[0].id);
   const [activeCourseSub, setActiveCourseSub] = useState<string>(courseContentSubs[0].id);
 
@@ -413,6 +438,61 @@ export default function ProjectContentEditorPage() {
       }
     })();
   }, [slug]);
+
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/projects/${encodeURIComponent(slug)}`, { cache: "no-store" });
+        const body = await res.json();
+        if (!res.ok) {
+          setProjectError(body.error ?? "Failed to load project");
+          return;
+        }
+        setProject(body.project);
+        setCreatedAt(body.createdAt ?? null);
+        setUpdatedAt(body.updatedAt ?? null);
+      } catch {
+        setProjectError("Failed to load project");
+      }
+    })();
+  }, [slug]);
+
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/projects/${encodeURIComponent(slug)}/certificates`, { cache: "no-store" });
+        const body = await res.json();
+        if (!res.ok) {
+          setCertError(body.error ?? "Failed to load certificates");
+          return;
+        }
+        setCertificates(body.certificates);
+      } catch {
+        setCertError("Failed to load certificates");
+      }
+    })();
+  }, [slug]);
+
+  async function handleDeleteProject() {
+    if (!confirm(`Delete "${project?.title ?? slug}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/admin/projects/${encodeURIComponent(slug)}`, { method: "DELETE" });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setDeleteError(body.error ?? "Failed to delete project");
+        setDeleting(false);
+        return;
+      }
+      router.push("/admin/projects");
+    } catch {
+      setDeleteError("Network error while deleting");
+      setDeleting(false);
+    }
+  }
 
   const setSaveState = (section: ProjectContentSection, state: SaveState) =>
     setSaveStates((s) => ({ ...s, [section]: state }));
@@ -466,7 +546,7 @@ export default function ProjectContentEditorPage() {
         <Link href="/admin/projects" className="text-sm font-medium text-brand hover:underline">
           ← Back to projects
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-ink">Edit content</h1>
+        <h1 className="mt-1 text-xl font-semibold text-ink">Project Studio</h1>
         <p className="text-sm text-ink-muted">{slug}</p>
       </div>
 
@@ -486,6 +566,7 @@ export default function ProjectContentEditorPage() {
                 {s.label}
               </button>
             ))}
+            <Link href={`/admin/projects/${slug}/workspace`} className="rounded-full px-3.5 py-2 text-left text-sm font-medium text-ink hover:bg-black/[0.03]">Workspace Builder</Link>
           </nav>
 
           {activeTop === "learningHub" && (
@@ -531,6 +612,22 @@ export default function ProjectContentEditorPage() {
 
         {/* Editor panel */}
         <div className="min-w-0 flex-1 rounded-xl border border-black/[0.08] bg-white p-5">
+          {activeTop === "overview" && (
+            <OverviewTab slug={slug} project={project} error={projectError} />
+          )}
+          {activeTop === "analytics" && (
+            <AnalyticsTab project={project} certificates={certificates} error={certError} />
+          )}
+          {activeTop === "settings" && (
+            <SettingsTab
+              slug={slug}
+              createdAt={createdAt}
+              updatedAt={updatedAt}
+              deleting={deleting}
+              deleteError={deleteError}
+              onDelete={handleDeleteProject}
+            />
+          )}
           {activeTop === "learningHub" && (
             <LearningHubEditor
               sub={activeHubSub}
@@ -1163,6 +1260,228 @@ function ReviewsEditor({
         )}
       />
       <SaveBar state={saveState} onSave={onSave} label="Reviews" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Overview
+// ---------------------------------------------------------------------------
+
+function OverviewTab({
+  slug,
+  project,
+  error,
+}: {
+  slug: string;
+  project: ProjectSummary | null;
+  error: string | null;
+}) {
+  if (error) {
+    return <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>;
+  }
+  if (!project) {
+    return <p className="text-sm text-ink-muted">Loading project overview…</p>;
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-ink">Overview</h2>
+        <Link
+          href="/admin/projects"
+          className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+        >
+          Edit catalog fields
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[160px_1fr]">
+        {project.thumbnail ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={project.thumbnail}
+            alt={project.title}
+            className="h-32 w-full rounded-lg border border-black/10 object-cover sm:w-40"
+          />
+        ) : (
+          <div className="flex h-32 w-full items-center justify-center rounded-lg border border-dashed border-black/10 text-xs text-ink-muted sm:w-40">
+            No thumbnail
+          </div>
+        )}
+        <div className="flex flex-col gap-2">
+          <p className="text-base font-semibold text-ink">{project.title}</p>
+          <p className="text-sm text-ink-muted">{project.shortDescription}</p>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full bg-brand-light px-2.5 py-1 font-semibold text-brand">{project.category}</span>
+            <span className="rounded-full bg-black/[0.04] px-2.5 py-1 font-semibold text-ink-muted">{project.level}</span>
+            <span className={`rounded-full px-2.5 py-1 font-semibold ${statusBadgeClass(project.publishStatus)}`}>
+              {statusLabel(project.publishStatus)}
+            </span>
+            {project.isPro && (
+              <span className="rounded-full bg-amber-50 px-2.5 py-1 font-semibold text-amber-700">Pro</span>
+            )}
+          </div>
+          {project.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {project.tags.map((t) => (
+                <span key={t} className="rounded-full border border-black/10 px-2 py-0.5 text-xs text-ink-muted">
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatBox label="Rating" value={project.rating.toFixed(1)} />
+        <StatBox label="Reviews" value={String(project.reviewCount)} />
+        <StatBox label="Videos" value={String(project.videoCount)} />
+        <StatBox label="Learners" value={project.learners} />
+      </div>
+
+      <p className="text-xs text-ink-muted">
+        Slug: <span className="font-mono">{slug}</span> · Instructor: {project.instructor.name} ({project.instructor.title})
+      </p>
+    </div>
+  );
+}
+
+function statusBadgeClass(status: ProjectSummary["publishStatus"]) {
+  switch (status ?? "published") {
+    case "draft":
+      return "bg-amber-50 text-amber-700 border border-amber-200";
+    case "archived":
+      return "bg-black/[0.04] text-ink-muted border border-black/10";
+    default:
+      return "bg-brand-light text-brand border border-brand/20";
+  }
+}
+
+function statusLabel(status: ProjectSummary["publishStatus"]) {
+  switch (status ?? "published") {
+    case "draft":
+      return "Draft";
+    case "archived":
+      return "Archived";
+    default:
+      return "Published";
+  }
+}
+
+function StatBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{label}</p>
+      <p className="text-sm font-semibold text-ink">{value}</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Analytics
+// ---------------------------------------------------------------------------
+
+function AnalyticsTab({
+  project,
+  certificates,
+  error,
+}: {
+  project: ProjectSummary | null;
+  certificates: Certificate[] | null;
+  error: string | null;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="text-sm font-semibold text-ink">Analytics</h2>
+
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Reviews (from catalog)</p>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatBox label="Average rating" value={project ? project.rating.toFixed(1) : "—"} />
+        <StatBox label="Review count" value={project ? String(project.reviewCount) : "—"} />
+        <StatBox label="Learners" value={project ? project.learners : "—"} />
+      </div>
+
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Certificates issued</p>
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
+      {!certificates && !error && <p className="text-sm text-ink-muted">Loading certificate stats…</p>}
+      {certificates && (
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <StatBox label="Total certificates" value={String(certificates.length)} />
+            <StatBox
+              label="Elite tier"
+              value={String(certificates.filter((c) => c.tier === "elite").length)}
+            />
+            <StatBox
+              label="Standard tier"
+              value={String(certificates.filter((c) => c.tier === "standard").length)}
+            />
+          </div>
+          {certificates.length === 0 && (
+            <p className="text-sm text-ink-muted">No certificates have been issued for this project yet.</p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------------------
+
+function SettingsTab({
+  slug,
+  createdAt,
+  updatedAt,
+  deleting,
+  deleteError,
+  onDelete,
+}: {
+  slug: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+  deleting: boolean;
+  deleteError: string | null;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="text-sm font-semibold text-ink">Settings</h2>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Slug</p>
+          <p className="font-mono text-sm text-ink">{slug}</p>
+        </div>
+        <div className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Created</p>
+          <p className="text-sm text-ink">{createdAt ? new Date(createdAt).toLocaleString() : "—"}</p>
+        </div>
+        <div className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Last updated</p>
+          <p className="text-sm text-ink">{updatedAt ? new Date(updatedAt).toLocaleString() : "—"}</p>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+        <p className="text-sm font-semibold text-red-700">Danger zone</p>
+        <p className="mt-1 text-xs text-red-600">
+          Deleting this project removes it and all of its content (Learning Hub, Course Content, Discussion,
+          Reviews, Pro Solution) permanently. This cannot be undone.
+        </p>
+        {deleteError && <p className="mt-2 text-xs font-medium text-red-700">{deleteError}</p>}
+        <button
+          type="button"
+          disabled={deleting}
+          onClick={onDelete}
+          className="mt-3 rounded-full border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+        >
+          {deleting ? "Deleting…" : "Delete this project"}
+        </button>
+      </div>
     </div>
   );
 }

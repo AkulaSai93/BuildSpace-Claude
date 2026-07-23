@@ -43,6 +43,19 @@ export async function getProject(slug: string): Promise<ProjectSummary | null> {
   return rows[0]?.data ?? null;
 }
 
+export interface ProjectRow {
+  data: ProjectSummary;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getProjectRow(slug: string): Promise<ProjectRow | null> {
+  const rows = (await rest(
+    `/projects?slug=eq.${encodeURIComponent(slug)}&select=data,created_at,updated_at`
+  )) as ProjectRow[];
+  return rows[0] ?? null;
+}
+
 export async function createProject(project: ProjectSummary): Promise<void> {
   await rest("/projects", {
     method: "POST",

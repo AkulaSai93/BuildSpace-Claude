@@ -17,6 +17,7 @@ const categories = [
 ] as const;
 
 const levels = ["Beginner", "Intermediate", "Advanced"] as const;
+const publishStatuses = ["draft", "published", "archived"] as const;
 
 type FormState = {
   slug: string;
@@ -34,6 +35,7 @@ type FormState = {
   learners: string;
   instructorName: string;
   instructorTitle: string;
+  publishStatus: (typeof publishStatuses)[number];
 };
 
 const emptyForm: FormState = {
@@ -52,6 +54,7 @@ const emptyForm: FormState = {
   learners: "0",
   instructorName: "",
   instructorTitle: "",
+  publishStatus: "published",
 };
 
 function projectToForm(p: ProjectSummary): FormState {
@@ -71,6 +74,7 @@ function projectToForm(p: ProjectSummary): FormState {
     learners: p.learners,
     instructorName: p.instructor.name,
     instructorTitle: p.instructor.title,
+    publishStatus: p.publishStatus ?? "published",
   };
 }
 
@@ -91,7 +95,30 @@ function formToProject(f: FormState, existing?: ProjectSummary): ProjectSummary 
     duration: f.duration.trim(),
     learners: f.learners.trim(),
     instructor: { name: f.instructorName.trim(), title: f.instructorTitle.trim() },
+    publishStatus: f.publishStatus,
   };
+}
+
+function statusBadgeClass(status: ProjectSummary["publishStatus"]) {
+  switch (status ?? "published") {
+    case "draft":
+      return "bg-amber-50 text-amber-700 border border-amber-200";
+    case "archived":
+      return "bg-black/[0.04] text-ink-muted border border-black/10";
+    default:
+      return "bg-brand-light text-brand border border-brand/20";
+  }
+}
+
+function statusLabel(status: ProjectSummary["publishStatus"]) {
+  switch (status ?? "published") {
+    case "draft":
+      return "Draft";
+    case "archived":
+      return "Archived";
+    default:
+      return "Published";
+  }
 }
 
 export default function AdminProjectsPage() {
@@ -185,6 +212,43 @@ export default function AdminProjectsPage() {
     await load();
   };
 
+  const setStatus = async (p: ProjectSummary, publishStatus: NonNullable<ProjectSummary["publishStatus"]>) => {
+    setBusySlug(p.slug);
+    setError(null);
+    const payload: ProjectSummary = { ...p, publishStatus };
+    const res = await fetch(`/api/admin/projects/${encodeURIComponent(p.slug)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json();
+    setBusySlug(null);
+    if (!res.ok) {
+      setError(body.error ?? "Failed to update status");
+      return;
+    }
+    await load();
+  };
+
+  const duplicate = async (p: ProjectSummary) => {
+    setBusySlug(p.slug);
+    setError(null);
+    const newSlug = `${p.slug}-copy`;
+    const payload: ProjectSummary = { ...p, slug: newSlug, title: `${p.title} (Copy)`, publishStatus: "draft" };
+    const res = await fetch("/api/admin/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json();
+    setBusySlug(null);
+    if (!res.ok) {
+      setError(body.error ?? "Failed to duplicate project");
+      return;
+    }
+    await load();
+  };
+
   const showForm = creating || !!editingSlug;
 
   return (
@@ -198,6 +262,27 @@ export default function AdminProjectsPage() {
         >
           + New project
         </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Link
+          href="/admin/projects/categories"
+          className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+        >
+          Categories
+        </Link>
+        <Link
+          href="/admin/projects/technologies"
+          className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+        >
+          Technologies
+        </Link>
+        <Link
+          href="/admin/projects/collections"
+          className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+        >
+          Collections
+        </Link>
       </div>
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
@@ -353,6 +438,20 @@ export default function AdminProjectsPage() {
               />
               Pro project
             </label>
+            <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
+              Publish status
+              <select
+                value={form.publishStatus}
+                onChange={(e) => setForm((f) => ({ ...f, publishStatus: e.target.value as FormState["publishStatus"] }))}
+                className="rounded-lg border border-black/10 bg-[#faf9f7] px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+              >
+                {publishStatuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           {formError && <p className="mt-3 text-sm font-medium text-red-600">{formError}</p>}
@@ -388,49 +487,123 @@ export default function AdminProjectsPage() {
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Level</th>
                 <th className="px-4 py-3">Pro</th>
+                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {projects.map((p) => (
-                <tr key={p.slug} className="border-b border-black/[0.06] last:border-0">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-ink">{p.title}</p>
-                    <p className="text-xs text-ink-muted">{p.slug}</p>
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">{p.category}</td>
-                  <td className="px-4 py-3 text-ink-muted">{p.level}</td>
-                  <td className="px-4 py-3">{p.isPro ? "Pro" : "Free"}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        href={`/admin/projects/${encodeURIComponent(p.slug)}/content`}
-                        className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03]"
-                      >
-                        Edit content
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => startEdit(p)}
-                        className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03]"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busySlug === p.slug}
-                        onClick={() => remove(p)}
-                        className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {projects.map((p) => {
+                const status = p.publishStatus ?? "published";
+                const isBusy = busySlug === p.slug;
+                return (
+                  <tr key={p.slug} className="border-b border-black/[0.06] last:border-0">
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-ink">{p.title}</p>
+                      <p className="text-xs text-ink-muted">{p.slug}</p>
+                    </td>
+                    <td className="px-4 py-3 text-ink-muted">{p.category}</td>
+                    <td className="px-4 py-3 text-ink-muted">{p.level}</td>
+                    <td className="px-4 py-3">{p.isPro ? "Pro" : "Free"}</td>
+                    <td className="px-4 py-3">
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(p.publishStatus)}`}>
+                        {statusLabel(p.publishStatus)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        {status === "draft" ? (
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => setStatus(p, "published")}
+                            className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03] disabled:opacity-50"
+                          >
+                            Publish
+                          </button>
+                        ) : status === "published" ? (
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => setStatus(p, "draft")}
+                            className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03] disabled:opacity-50"
+                          >
+                            Unpublish
+                          </button>
+                        ) : null}
+                        {status !== "archived" && (
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => setStatus(p, "archived")}
+                            className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03] disabled:opacity-50"
+                          >
+                            Archive
+                          </button>
+                        )}
+                        {status === "archived" && (
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => setStatus(p, "published")}
+                            className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03] disabled:opacity-50"
+                          >
+                            Restore
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          disabled={isBusy}
+                          onClick={() => duplicate(p)}
+                          className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03] disabled:opacity-50"
+                        >
+                          Duplicate
+                        </button>
+                        {status === "draft" ? (
+                          <span
+                            title="Draft projects are not publicly visible yet — publish first to preview on the live library page."
+                            className="cursor-not-allowed rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink-muted opacity-50"
+                          >
+                            Preview
+                          </span>
+                        ) : (
+                          <a
+                            href={`/library/${encodeURIComponent(p.slug)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+                          >
+                            Preview
+                          </a>
+                        )}
+                        <Link
+                          href={`/admin/projects/${encodeURIComponent(p.slug)}/content`}
+                          className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+                        >
+                          Project Studio
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => startEdit(p)}
+                          className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-ink hover:bg-black/[0.03]"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isBusy}
+                          onClick={() => remove(p)}
+                          className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {projects.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-ink-muted">
+                  <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
                     No projects yet.
                   </td>
                 </tr>

@@ -25,6 +25,10 @@ export interface ProjectSummary {
   status?: "in-progress" | "completed" | "bookmarked";
   completedOn?: string;
   yourRating?: number;
+  // Publishing state for the admin catalog. Missing/undefined is treated as
+  // "published" so every project seeded before this field existed keeps
+  // showing up in the public library exactly as before.
+  publishStatus?: "draft" | "published" | "archived";
 }
 
 export interface LibraryCategory {

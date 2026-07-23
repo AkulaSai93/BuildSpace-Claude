@@ -6,7 +6,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const { slug } = await params;
   try {
     const project = await getProject(slug);
-    if (!project) {
+    if (!project || (project.publishStatus && project.publishStatus !== "published")) {
       return NextResponse.json({ error: `No project found for slug "${slug}"` }, { status: 404 });
     }
     return NextResponse.json({ project });

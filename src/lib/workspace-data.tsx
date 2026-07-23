@@ -8,6 +8,15 @@ export interface EngineeringQuestion {
   criteria: { title: string; desc: string }[];
   references: { label: string; color: string }[];
   hint: string;
+  // Optional additive fields for the Workspace Builder (hint engine + AI
+  // review config). `hint` above is kept untouched for back-compat.
+  expectedAnswer?: string;
+  aiPrompt?: string;
+  weight?: number;
+  required?: boolean;
+  hints?: string[];
+  maxHints?: number;
+  hintCooldownSeconds?: number;
 }
 
 export interface AiReview {
@@ -19,6 +28,10 @@ export interface AiReview {
   security: string;
   performance: string;
   betterApproach: string[];
+  // Optional additive fields for the Workspace Builder AI review config.
+  rubric?: string;
+  passingPercent?: number;
+  suggestedAnswer?: string;
 }
 
 export interface CommitDetail {
@@ -47,6 +60,16 @@ export interface WorkspaceData {
   returningStats: { currentSprint: string; currentMilestone: string; tasksCompleted: string };
   buildBreakdown: { label: string; percent: number; color: string }[];
   validationChecks: { label: string; status: "Passed" | "Failed" | "Pending" }[];
+  // Optional additive field: admin-configured unlock rules for gating
+  // videos/resources/certificate behind score + credits + section progress.
+  unlockRules?: {
+    minScore: number;
+    requiredSections: string[];
+    creditsRequired: number;
+    unlockVideos: boolean;
+    unlockResources: boolean;
+    unlockCertificate: boolean;
+  };
 }
 
 // Data used to live here as hardcoded objects. It's now stored in Supabase
